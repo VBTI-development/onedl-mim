@@ -2,6 +2,7 @@
 import functools
 import hashlib
 import importlib
+import json
 import os
 import os.path as osp
 import pkg_resources
@@ -11,8 +12,10 @@ import tarfile
 import typing
 from collections import defaultdict
 from email.parser import FeedParser
+from importlib.metadata import Distribution
 from pkg_resources import get_distribution, parse_version
 from typing import Any, List, Optional, Sequence, Tuple, Union
+from urllib.parse import unquote, urlparse
 
 import click
 import requests
@@ -328,12 +331,27 @@ def get_installed_path(package: str) -> str:
     # inferred. For example, onedl-mmcv is the package name, but mmcv is module
     # name. If we want to get the installed path of onedl-mmcv, we should
     # concat the pkg.location and module name
-    pkg = get_distribution(package)
-    possible_path = osp.join(pkg.location, package)  # type: ignore
-    if osp.exists(possible_path):
-        return possible_path
-    else:
-        return osp.join(pkg.location, package2module(package))  # type: ignore
+    possible_path = ''
+    direct_url = Distribution.from_name(package).read_text('direct_url.json')
+
+    if direct_url:
+        direct_url_dict: dict = json.loads(str(direct_url))
+        pkg_is_editable = direct_url_dict.get('dir_info',
+                                              {}).get('editable', False)
+
+        if pkg_is_editable:
+            possible_path = direct_url_dict.get('url', '')
+            possible_path = osp.normpath(unquote(urlparse(possible_path).path))
+
+    if not possible_path:
+        pkg = get_distribution(package)
+        possible_path = osp.join(pkg.location, package)  # type: ignore
+        if not osp.exists(possible_path):
+            possible_path = osp.join(
+                pkg.location,  # type: ignore
+                package2module(package))
+
+    return possible_path
 
 
 def is_npu_available() -> bool:
