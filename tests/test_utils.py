@@ -10,32 +10,32 @@ from mim.utils.utils import get_torch_device_version, is_npu_available
 def setup_module():
     runner = CliRunner()
     result = runner.invoke(uninstall, ['onedl-mmcv', '--yes'])
-    assert result.exit_code == 0
+    assert result.exit_code == 0, result.output
     result = runner.invoke(uninstall, ['onedl-mmpretrain', '--yes'])
-    assert result.exit_code == 0
+    assert result.exit_code == 0, result.output
 
 
 def test_parse_home_page():
     runner = CliRunner()
     result = runner.invoke(install, ['onedl-mmpretrain', '--yes'])
-    assert result.exit_code == 0
+    assert result.exit_code == 0, result.output
     assert parse_home_page(
         'onedl-mmpretrain'
     ) == 'https://github.com/vbti-development/onedl-mmpretrain'
     result = runner.invoke(uninstall, ['onedl-mmpretrain', '--yes'])
-    assert result.exit_code == 0
+    assert result.exit_code == 0, result.output
 
 
 def test_get_github_url():
     runner = CliRunner()
     result = runner.invoke(install, ['onedl-mmpretrain', '--yes'])
-    assert result.exit_code == 0
+    assert result.exit_code == 0, result.output
     assert get_github_url(
         'onedl-mmpretrain'
     ) == 'https://github.com/vbti-development/onedl-mmpretrain.git'
 
     result = runner.invoke(uninstall, ['onedl-mmpretrain', '--yes'])
-    assert result.exit_code == 0
+    assert result.exit_code == 0, result.output
     assert get_github_url(
         'onedl-mmpretrain'
     ) == 'https://github.com/vbti-development/onedl-mmpretrain.git'
@@ -51,6 +51,6 @@ def test_get_torch_device_version():
 def teardown_module():
     runner = CliRunner()
     result = runner.invoke(uninstall, ['onedl-mmcv', '--yes'])
-    assert result.exit_code == 0
+    assert result.exit_code == 0, result.output
     result = runner.invoke(uninstall, ['onedl-mmpretrain', '--yes'])
-    assert result.exit_code == 0
+    assert result.exit_code == 0, result.output

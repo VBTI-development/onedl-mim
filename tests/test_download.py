@@ -10,11 +10,11 @@ from mim.commands.uninstall import cli as uninstall
 def setup_module():
     runner = CliRunner()
     result = runner.invoke(uninstall, ['onedl-mmcv', '--yes'])
-    assert result.exit_code == 0
+    assert result.exit_code == 0, result.output
     result = runner.invoke(uninstall, ['onedl-mmengine', '--yes'])
-    assert result.exit_code == 0
+    assert result.exit_code == 0, result.output
     result = runner.invoke(uninstall, ['onedl-mmpretrain', '--yes'])
-    assert result.exit_code == 0
+    assert result.exit_code == 0, result.output
 
 
 def test_download(tmp_path):
@@ -42,7 +42,7 @@ def test_download(tmp_path):
         'onedl-mmpretrain', '--yes', '-f',
         'https://github.com/vbti-development/onedl-mmpretrain.git'
     ])
-    assert result.exit_code == 0
+    assert result.exit_code == 0, result.output
 
     # mim download onedl-mmpretrain --config resnet18_8xb16_cifar10
     checkpoints = download('onedl-mmpretrain', ['resnet18_8xb16_cifar10'])
@@ -59,8 +59,8 @@ def test_download(tmp_path):
 def teardown_module():
     runner = CliRunner()
     result = runner.invoke(uninstall, ['onedl-mmcv', '--yes'])
-    assert result.exit_code == 0
+    assert result.exit_code == 0, result.output
     result = runner.invoke(uninstall, ['onedl-mmengine', '--yes'])
-    assert result.exit_code == 0
+    assert result.exit_code == 0, result.output
     result = runner.invoke(uninstall, ['onedl-mmpretrain', '--yes'])
-    assert result.exit_code == 0
+    assert result.exit_code == 0, result.output

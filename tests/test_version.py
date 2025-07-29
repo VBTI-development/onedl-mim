@@ -8,4 +8,4 @@ def test_version():
     # test `mim --version` command
     runner = CliRunner()
     result = runner.invoke(mim_cli, ['--version'])
-    assert result.exit_code == 0
+    assert result.exit_code == 0, result.output

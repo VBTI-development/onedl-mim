@@ -9,11 +9,11 @@ from mim.commands.uninstall import cli as uninstall
 def setup_module():
     runner = CliRunner()
     result = runner.invoke(uninstall, ['onedl-mmcv', '--yes'])
-    assert result.exit_code == 0
+    assert result.exit_code == 0, result.output
     result = runner.invoke(uninstall, ['onedl-mmpretrain', '--yes'])
-    assert result.exit_code == 0
+    assert result.exit_code == 0, result.output
     result = runner.invoke(uninstall, ['mmsegmentation', '--yes'])
-    assert result.exit_code == 0
+    assert result.exit_code == 0, result.output
 
 
 def test_uninstall():
@@ -28,7 +28,7 @@ def test_uninstall():
     # So here we install mmsegmentation twice as an ugly workaround.
     # TODO: find a better way to deal with this issues.
     result = runner.invoke(install, ['mmsegmentation', '--yes'])
-    assert result.exit_code == 0
+    assert result.exit_code == 0, result.output
 
     # check if install success
     result = list_package()
@@ -41,7 +41,7 @@ def test_uninstall():
 
     # mim uninstall mmsegmentation --yes
     result = runner.invoke(uninstall, ['mmsegmentation', '--yes'])
-    assert result.exit_code == 0
+    assert result.exit_code == 0, result.output
 
     # check if uninstall success
     result = list_package()
@@ -51,7 +51,7 @@ def test_uninstall():
     # mim uninstall onedl-mmpretrain onedl-mmcv --yes
     result = runner.invoke(uninstall,
                            ['onedl-mmpretrain', 'onedl-mmcv', '--yes'])
-    assert result.exit_code == 0
+    assert result.exit_code == 0, result.output
 
     # check if uninstall success
     result = list_package()
@@ -63,8 +63,8 @@ def test_uninstall():
 def teardown_module():
     runner = CliRunner()
     result = runner.invoke(uninstall, ['onedl-mmcv', '--yes'])
-    assert result.exit_code == 0
+    assert result.exit_code == 0, result.output
     result = runner.invoke(uninstall, ['onedl-mmpretrain', '--yes'])
-    assert result.exit_code == 0
+    assert result.exit_code == 0, result.output
     result = runner.invoke(uninstall, ['mmsegmentation', '--yes'])
-    assert result.exit_code == 0
+    assert result.exit_code == 0, result.output
