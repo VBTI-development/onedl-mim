@@ -17,7 +17,6 @@ from mim.utils import (
     DEFAULT_MMCV_BASE_URL,
     PKG2PROJECT,
     echo_warning,
-    exit_with_error,
     get_torch_device_version,
 )
 
@@ -382,9 +381,13 @@ def check_mim_resources() -> None:
             continue
         if pkg.has_metadata('top_level.txt'):
             module_name = pkg.get_metadata('top_level.txt').split('\n')[0]
-            installed_path = os.path.join(pkg.location, module_name)
+            installed_path = os.path.join(
+                pkg.location,  # type: ignore
+                module_name)
         else:
-            installed_path = os.path.join(pkg.location, pkg_name)
+            installed_path = os.path.join(
+                pkg.location,  # type: ignore
+                pkg_name)
         mim_resources_path = os.path.join(installed_path, '.mim')
         if not os.path.exists(mim_resources_path):
             echo_warning(f'mim resources not found: {mim_resources_path}, '

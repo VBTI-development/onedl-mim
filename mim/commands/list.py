@@ -48,18 +48,20 @@ def list_package(all: bool = False) -> List[Tuple[str, ...]]:
         if all:
             pkgs_info.append((pkg_name, pkg.version))
         else:
-            installed_path = osp.join(pkg.location, pkg_name)
+            installed_path = osp.join(pkg.location, pkg_name)  # type: ignore
             if not osp.exists(installed_path):
                 module_name = None
                 if pkg.has_metadata('top_level.txt'):
                     module_name = pkg.get_metadata('top_level.txt').split(
                         '\n')[0]
                 if module_name:
-                    installed_path = osp.join(pkg.location, module_name)
+                    installed_path = osp.join(
+                        pkg.location,  # type: ignore
+                        module_name)
                 else:
                     continue
 
-            home_page = pkg.location
+            home_page = str(pkg.location)
             if pkg.has_metadata('METADATA'):
                 metadata = pkg.get_metadata('METADATA')
                 feed_parser = FeedParser()

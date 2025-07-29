@@ -22,9 +22,9 @@ sys.path.insert(0, os.path.abspath('../..'))
 
 # -- Project information -----------------------------------------------------
 
-project = 'mim'
-copyright = '2021, openmmlab'
-author = 'MIM Authors'
+project = 'OneDL MIM'
+copyright = '2025, VBTI'
+author = 'OneDL MIM Authors'
 version_file = '../../mim/version.py'
 
 
@@ -72,11 +72,12 @@ html_theme_options = {
     'menu': [
         {
             'name': 'GitHub',
-            'url': 'https://github.com/open-mmlab/mim'
+            'url': 'https://github.com/vbti-development/onedl-mim'
         },
     ],
     # Specify the language of shared menu
-    'menu_lang': 'en',
+    'menu_lang':
+    'en',
 }
 
 # Add any paths that contain custom static files (such as style sheets) here,

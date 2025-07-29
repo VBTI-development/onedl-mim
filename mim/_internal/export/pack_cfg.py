@@ -281,7 +281,7 @@ def pack_tools(tool_name: str,
                scope: str,
                tool_dir: str,
                auto_import: Optional[bool] = False):
-    """pack tools from installed repo.
+    """Pack tools from installed repo.
 
     Args:
         tool_name (str): Tool name in repos' tool dir.

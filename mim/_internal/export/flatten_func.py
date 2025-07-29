@@ -19,7 +19,7 @@ from .common import OBJECTS_TO_BE_PATCHED
 
 @dataclass
 class TopClassNodeInfo:
-    """Contatins ``top_cls_node`` information which waiting to be flattened.
+    """Contains ``top_cls_node`` information which waiting to be flattened.
 
     Attributes:
         "cls_node": `ast.ClassDef`, needed to be flattened.
@@ -40,19 +40,19 @@ class TopClassNodeInfo:
 
 @dataclass
 class TopAstInfo:
-    """top_ast_info (TopClassNodeInfo): Contatins the initial information of
-    the ``top_ast_tree``.
+    """top_ast_info (TopClassNodeInfo): Contains the initial information of the
+    ``top_ast_tree``.
 
     Attributes:
-        class_dict (TopClassNodeInfo): Contatins ``top_cls_node``
+        class_dict (TopClassNodeInfo): Contains ``top_cls_node``
             information which waiting to be flattened.
         importfrom_dict (Dict[str, List[ast.ImportFrom, List[str]]]):
-            Contatins the simple alias of `ast.ImportFrom` information.
-        import_list (List[str]): Contatins imported module name.
-        assign_list (List[ast.Assign]): Contatins global assign.
-        if_list (List[ast.If]): Contatins global `ast.If`.
-        try_list (List[ast.Try]): Contatins global `ast.Try`.
-        importfrom_asname_dict (Dict[str, ast.ImportFrom]): Contatins the
+            Contains the simple alias of `ast.ImportFrom` information.
+        import_list (List[str]): Contains imported module name.
+        assign_list (List[ast.Assign]): Contains global assign.
+        if_list (List[ast.If]): Contains global `ast.If`.
+        try_list (List[ast.Try]): Contains global `ast.Try`.
+        importfrom_asname_dict (Dict[str, ast.ImportFrom]): Contains the
             asname alias of `ast.ImportFrom` information.
     """
     class_dict: TopClassNodeInfo
@@ -68,8 +68,8 @@ class TopAstInfo:
 
 @dataclass
 class ExtraSuperAstInfo:
-    """extra_super_ast_info (ExtraSuperAstInfo): Contatins the extra
-    information of the ``super_ast_tree`` which needed to be consider.
+    """extra_super_ast_info (ExtraSuperAstInfo): Contains the extra information
+    of the ``super_ast_tree`` which needed to be consider.
 
     Attributes:
         used_module (Dict[ast.AST, Set[str]): The dict records
@@ -89,7 +89,7 @@ class ExtraSuperAstInfo:
 
 @dataclass
 class NeededNodeInfo:
-    """need_node_info (NeededNodeInfo): Contatins the needed node by comparing
+    """need_node_info (NeededNodeInfo): Contains the needed node by comparing
     ``super_ast_tree`` and ``top_ast_tree``.
 
     Attributes:
@@ -205,7 +205,7 @@ def is_in_top_ast_tree(node: ast.AST,
 
     Args:
         node (ast.AST): AST Node.
-        top_ast_info (TopClassNodeInfo): Contatins the initial information
+        top_ast_info (TopClassNodeInfo): Contains the initial information
                     of the ``top_ast_tree``.
         top_cls_and_func_node_name_list (List[str], optional): Containing
             `Class` or `Function` name in ``top_ast_tree``. Defaults to "[]"
@@ -269,9 +269,9 @@ def find_local_import(node: Union[ast.FunctionDef, ast.Assign],
 
     Args:
         node (ast.FunctionDef | ast.Assign)
-        extra_super_ast_info (ExtraSuperAstInfo): Contatins the extra
+        extra_super_ast_info (ExtraSuperAstInfo): Contains the extra
             information of the ``super_ast_tree`` which needed to be consider.
-        need_node_info (NeededNodeInfo, optional): Contatins the needed node
+        need_node_info (NeededNodeInfo, optional): Contains the needed node
             by comparing ``super_ast_tree`` and ``top_ast_tree``.
 
     Returns:
@@ -311,7 +311,7 @@ def add_local_import_to_func(node, need_node_info: NeededNodeInfo):
 
     Args:
         node (ast.FunctionDef | ast.Assign)
-        need_node_info (NeededNodeInfo): Contatins the needed node by
+        need_node_info (NeededNodeInfo): Contains the needed node by
             comparing ``super_ast_tree`` and ``top_ast_tree``.
     """
     insert_index = ignore_ast_docstring(node)
@@ -389,7 +389,7 @@ def init_prepare(top_ast_tree: ast.Module, flattened_cls_name: str):
             be flattened.
 
     Returns:
-        top_ast_info (TopClassNodeInfo): Contatins the initial information
+        top_ast_info (TopClassNodeInfo): Contains the initial information
             of the ``top_ast_tree``.
     """
     class_dict = TopClassNodeInfo(None)  # type: ignore
@@ -490,11 +490,11 @@ def collect_needed_node_from_super(super_ast_tree: ast.Module,
     Args:
         super_ast_tree (ast.Module): The super ast tree including the super
             class in the specific flatten class's mro.
-        top_ast_info (TopClassNodeInfo): Contatins the initial information
+        top_ast_info (TopClassNodeInfo): Contains the initial information
             of the ``top_ast_tree``.
 
     Returns:
-        extra_super_ast_info (ExtraSuperAstInfo): Contatins the extra
+        extra_super_ast_info (ExtraSuperAstInfo): Contains the extra
             information of the ``super_ast_tree`` which needed to be consider.
     """
     extra_super_ast_info = ExtraSuperAstInfo()
@@ -511,7 +511,7 @@ def collect_needed_node_from_super(super_ast_tree: ast.Module,
             # Examples:
             #   >>> # common style
             #   >>> for abc import a as A
-            #   >>> # not recommonded style
+            #   >>> # not recommended style
             #   >>> for abc import a as A, B
             if node.names[0].asname is not None:
                 if node.module in top_ast_info.importfrom_asname_dict:
@@ -757,9 +757,9 @@ def postprocess_top_ast_tree(
             class in the specific flatten class's mro.
         top_ast_tree (ast.Module): The top ast tree contains the classes
             directly called, which is  continuelly updated.
-        extra_super_ast_info (ExtraSuperAstInfo): Contatins the extra
+        extra_super_ast_info (ExtraSuperAstInfo): Contains the extra
             information of the ``super_ast_tree`` which needed to be consider.
-        top_ast_info (TopClassNodeInfo): Contatins the initial information
+        top_ast_info (TopClassNodeInfo): Contains the initial information
             of the ``top_ast_tree``.
     """
 

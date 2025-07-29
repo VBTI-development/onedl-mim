@@ -585,7 +585,7 @@ def sort_by(dataframe: DataFrame,
     """Sort by the fields.
 
     When sorting output with some fields, substring is supported. For example,
-    if sorted_fields is ['epo'], the actual sorted fieds will be ['epochs'].
+    if sorted_fields is ['epo'], the actual sorted fields will be ['epochs'].
 
     Args:
         dataframe (DataFrame): Data to be sorted.

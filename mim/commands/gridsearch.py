@@ -291,7 +291,8 @@ def gridsearch(
                     eval(x) for x in search_args_dict[arg]
                 ]
                 for val in search_args_dict[arg]:
-                    assert type(val) == type(arg_value)
+                    assert isinstance(
+                        val, type(arg_value))  # type(val) == type(arg_value)
         except AssertionError:
             msg = f'Arg {arg} not in the config file. '
             raise AssertionError(highlighted_error(msg))

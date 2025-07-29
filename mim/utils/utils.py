@@ -25,7 +25,7 @@ from .progress_bars import rich_progress_bar
 
 try:
     import torch
-    import torch_npu
+    import torch_npu  # noqa: F401
 
     IS_NPU_AVAILABLE = hasattr(
         torch, 'npu') and torch.npu.is_available()  # type: ignore
@@ -329,11 +329,11 @@ def get_installed_path(package: str) -> str:
     # name. If we want to get the installed path of mmcv-full, we should concat
     # the pkg.location and module name
     pkg = get_distribution(package)
-    possible_path = osp.join(pkg.location, package)
+    possible_path = osp.join(pkg.location, package)  # type: ignore
     if osp.exists(possible_path):
         return possible_path
     else:
-        return osp.join(pkg.location, package2module(package))
+        return osp.join(pkg.location, package2module(package))  # type: ignore
 
 
 def is_npu_available() -> bool:

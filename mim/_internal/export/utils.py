@@ -64,7 +64,7 @@ def _postprocess_registry_locations(export_root_dir: str):
         ast_tree = ast.parse(f.read())
 
     for node in ast.walk(ast_tree):
-        """node structure.
+        """Node structure.
 
         Assign(     targets=[         Name(id='EVALUATORS', ctx=Store())],
         value=Call(         func=Name(id='Registry', ctx=Load()), args=[
@@ -184,7 +184,7 @@ def _postprocess_importfrom_module_to_pack(file_path: str):
                     export_module_path = _module_path_dict[alias.name]
                 else:
                     assert _module_path_dict[alias.name] == \
-                        export_module_path,\
+                        export_module_path, \
                         'There are two module from the same downstream repo,'\
                         " but can't change to the same export path."
 
@@ -508,7 +508,7 @@ def _export_module(self, obj_cls: type, pack_module_dir, obj_type: str):
 
 
 def _wrap_build(build_func: Callable, pack_module_dir: str):
-    """wrap Registry.build()
+    """Wrap Registry.build()
 
     Args:
         build_func (Callable): ``Registry.build()``, which will be wrapped.
@@ -537,7 +537,7 @@ def _wrap_build(build_func: Callable, pack_module_dir: str):
 
 
 def _wrap_get(get_func: Callable, pack_module_dir: str):
-    """wrap Registry.get()
+    """Wrap Registry.get()
 
     Args:
         get_func (Callable): ``Registry.get()``, which will be wrapped.
