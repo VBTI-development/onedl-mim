@@ -135,6 +135,31 @@ def install(
     if index_url is not None:
         install_args += ['-i', index_url]
 
+    # Modify package names to include [mminstall] extra for OpenMMLab packages
+    modified_install_args = []
+    for arg in install_args:
+        # Skip option flags
+        if arg.startswith('-'):
+            modified_install_args.append(arg)
+            continue
+
+        # Check if this is an OpenMMLab package
+        package_name = arg.split('==')[0].split('>=')[0].split('<=')[0].split(
+            '>')[0].split('<')[0].split('!=')[0]
+        if package_name in PKG2PROJECT and package_name != 'onedl-mmcv':
+            # Add [mminstall] extra if not already present
+            if '[' not in arg:
+                modified_arg = f'{arg}[mminstall]'
+                echo_warning(f'Adding [mminstall] extra to {package_name}: '
+                             f'{modified_arg}')
+                modified_install_args.append(modified_arg)
+            else:
+                modified_install_args.append(arg)
+        else:
+            modified_install_args.append(arg)
+
+    install_args = modified_install_args
+
     patch_mm_distribution: Callable = patch_pkg_resources_distribution
     try:
         # pip>=22.1 have two distribution backends: pkg_resources and importlib.  # noqa: E501
@@ -205,8 +230,19 @@ def patch_pkg_resources_distribution(
             mim_extra_requires = origin_requires(self, ('mim', ))
             filter_invalid_marker(mim_extra_requires)
             deps += mim_extra_requires
+        elif 'mminstall' in self.extras:
+            mminstall_extra_requires = origin_requires(self, ('mminstall', ))
+            filter_invalid_marker(mminstall_extra_requires)
+            deps += mminstall_extra_requires
         else:
+            # Try to check if the package has mminstall extra available
             if not hasattr(self, '_mm_deps'):
+                # For modern packages, we should install with [mminstall] extra
+                # rather than trying to fetch mminstall.txt
+                echo_warning(
+                    f'Package {self.project_name} should be installed with '
+                    f'[mminstall] extra dependency group. '
+                    f'Try: pip install {self.project_name}[mminstall]')
                 assert self.version is not None
                 mmdeps_text = get_mmdeps_from_mmpkg(self.project_name,
                                                     self.version, index_url)
@@ -253,8 +289,20 @@ def patch_importlib_distribution(index_url: Optional[str] = None) -> Generator:
                 origin_iter_dependencies(self, ('mim', )))
             filter_invalid_marker(mim_extra_requires)
             deps += mim_extra_requires
+        elif 'mminstall' in self.iter_provided_extras():
+            mminstall_extra_requires = list(
+                origin_iter_dependencies(self, ('mminstall', )))
+            filter_invalid_marker(mminstall_extra_requires)
+            deps += mminstall_extra_requires
         else:
+            # Try to check if the package has mminstall extra available
             if not hasattr(self, '_mm_deps'):
+                # For modern packages, we should install with [mminstall] extra
+                # rather than trying to fetch mminstall.txt
+                echo_warning(
+                    f'Package {self.canonical_name} should be installed with '
+                    f'[mminstall] extra dependency group. '
+                    f'Try: pip install {self.canonical_name}[mminstall]')
                 assert self.version is not None
                 mmdeps_text = get_mmdeps_from_mmpkg(self.canonical_name,
                                                     self.version, index_url)
