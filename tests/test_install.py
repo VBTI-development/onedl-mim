@@ -23,22 +23,22 @@ def test_third_party():
 
 def test_mmcv_install():
     runner = CliRunner()
-    # mim install mmcv-full --yes
+    # mim install onedl-mmcv --yes
     # install latest version
-    result = runner.invoke(install, ['mmcv-full', '--yes'])
+    result = runner.invoke(install, ['onedl-mmcv', '--yes'])
+    assert result.exit_code == 0, result.output
+
+    # mim install onedl-mmcv==1.3.1 --yes
+    result = runner.invoke(install, ['onedl-mmcv==1.3.1', '--yes'])
     assert result.exit_code == 0
 
-    # mim install mmcv-full==1.3.1 --yes
-    result = runner.invoke(install, ['mmcv-full==1.3.1', '--yes'])
-    assert result.exit_code == 0
-
-    # mim uninstall mmcv-full --yes
-    result = runner.invoke(uninstall, ['mmcv-full', '--yes'])
+    # mim uninstall onedl-mmcv --yes
+    result = runner.invoke(uninstall, ['onedl-mmcv', '--yes'])
     assert result.exit_code == 0
 
     # version should be less than latest version
-    # mim install mmcv-full==100.0.0 --yes
-    result = runner.invoke(install, ['mmcv-full==100.0.0', '--yes'])
+    # mim install onedl-mmcv==100.0.0 --yes
+    result = runner.invoke(install, ['onedl-mmcv==100.0.0', '--yes'])
     assert result.exit_code == 1
 
 
@@ -50,7 +50,8 @@ def test_mmrepo_install():
         repo_root = osp.join(temp_root, 'mmclassification')
         subprocess.check_call([
             'git', 'clone',
-            'https://github.com/open-mmlab/mmclassification.git', repo_root
+            'https://github.com/vbti-development/onedl-mmpretrain.git',
+            repo_root
         ])
 
         # mim install .
@@ -71,21 +72,22 @@ def test_mmrepo_install():
 
         os.chdir(current_root)
 
-    # mim install git+https://github.com/open-mmlab/mmclassification.git
+    # mim install git+https://github.com/vbti-development/onedl-mmpretrain.git
     result = runner.invoke(
-        install, ['git+https://github.com/open-mmlab/mmclassification.git'])
+        install,
+        ['git+https://github.com/vbti-development/onedl-mmpretrain.git'])
     assert result.exit_code == 0
 
-    # mim install mmcls --yes
-    result = runner.invoke(install, ['mmcls', '--yes'])
+    # mim install onedl-mmpretrain --yes
+    result = runner.invoke(install, ['onedl-mmpretrain', '--yes'])
     assert result.exit_code == 0
 
-    # mim install mmcls==0.11.0 --yes
-    result = runner.invoke(install, ['mmcls==0.11.0', '--yes'])
+    # mim install onedl-mmpretrain==0.11.0 --yes
+    result = runner.invoke(install, ['onedl-mmpretrain==0.11.0', '--yes'])
     assert result.exit_code == 0
 
-    result = runner.invoke(uninstall, ['mmcv-full', '--yes'])
+    result = runner.invoke(uninstall, ['onedl-mmcv', '--yes'])
     assert result.exit_code == 0
 
-    result = runner.invoke(uninstall, ['mmcls', '--yes'])
+    result = runner.invoke(uninstall, ['onedl-mmpretrain', '--yes'])
     assert result.exit_code == 0

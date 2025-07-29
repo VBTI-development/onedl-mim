@@ -9,26 +9,24 @@ from mim.commands.uninstall import cli as uninstall
 
 def setup_module():
     runner = CliRunner()
-    result = runner.invoke(uninstall, ['mmcv-full', '--yes'])
+    result = runner.invoke(uninstall, ['onedl-mmcv', '--yes'])
     assert result.exit_code == 0
-    result = runner.invoke(uninstall, ['mmcv', '--yes'])
-    assert result.exit_code == 0
-    result = runner.invoke(uninstall, ['mmcls', '--yes'])
+    result = runner.invoke(uninstall, ['onedl-mmpretrain', '--yes'])
     assert result.exit_code == 0
 
 
 def test_search():
     runner = CliRunner()
-    result = runner.invoke(install, ['mmcls', '--yes'])
+    result = runner.invoke(install, ['onedl-mmpretrain', '--yes'])
     assert result.exit_code == 0
 
-    # mim search mmcls
-    result = runner.invoke(search, ['mmcls'])
+    # mim search onedl-mmpretrain
+    result = runner.invoke(search, ['onedl-mmpretrain'])
     assert result.exit_code == 0
 
-    # mim search mmcls --remote
+    # mim search onedl-mmpretrain --remote
     # search master branch
-    result = runner.invoke(search, ['mmcls', '--remote'])
+    result = runner.invoke(search, ['onedl-mmpretrain', '--remote'])
     assert result.exit_code == 0
     # mim search mmsegmentation --remote
     result = runner.invoke(search, ['mmsegmentation', '--remote'])
@@ -37,87 +35,90 @@ def test_search():
     result = runner.invoke(search, ['mmaction2', '--remote'])
     assert result.exit_code == 0
 
-    # mim search mmcls==0.24.0 --remote
-    result = runner.invoke(search, ['mmcls==0.24.0', '--remote'])
+    # mim search onedl-mmpretrain==0.24.0 --remote
+    result = runner.invoke(search, ['onedl-mmpretrain==0.24.0', '--remote'])
     assert result.exit_code == 0
 
-    # always test latest mmcls
-    result = runner.invoke(uninstall, ['mmcls', '--yes'])
+    # always test latest onedl-mmpretrain
+    result = runner.invoke(uninstall, ['onedl-mmpretrain', '--yes'])
     assert result.exit_code == 0
 
-    result = runner.invoke(install, ['mmcls', '--yes'])
+    result = runner.invoke(install, ['onedl-mmpretrain', '--yes'])
     assert result.exit_code == 0
 
-    # mim search mmcls --model res
+    # mim search onedl-mmpretrain --model res
     # invalid model
-    result = runner.invoke(search, ['mmcls', '--model', 'res'])
+    result = runner.invoke(search, ['onedl-mmpretrain', '--model', 'res'])
     assert result.exit_code == 1
-    # mim search mmcls --model resnet
-    result = runner.invoke(search, ['mmcls', '--model', 'resnet'])
+    # mim search onedl-mmpretrain --model resnet
+    result = runner.invoke(search, ['onedl-mmpretrain', '--model', 'resnet'])
     assert result.exit_code == 0
 
-    # mim search mmcls --valid-config
-    result = runner.invoke(search, ['mmcls', '--valid-config'])
+    # mim search onedl-mmpretrain --valid-config
+    result = runner.invoke(search, ['onedl-mmpretrain', '--valid-config'])
     assert result.exit_code == 0
 
-    # mim search mmcls --config resnet18_b16x8_cifar1
+    # mim search onedl-mmpretrain --config resnet18_b16x8_cifar1
     # invalid config
-    result = runner.invoke(search,
-                           ['mmcls', '--config', 'resnet18_b16x8_cifar1'])
+    result = runner.invoke(
+        search, ['onedl-mmpretrain', '--config', 'resnet18_b16x8_cifar1'])
     assert result.exit_code == 1
-    # mim search mmcls --config resnet18_b16x8_cifar10
-    result = runner.invoke(search,
-                           ['mmcls', '--config', 'resnet18_8xb16_cifar10'])
+    # mim search onedl-mmpretrain --config resnet18_b16x8_cifar10
+    result = runner.invoke(
+        search, ['onedl-mmpretrain', '--config', 'resnet18_8xb16_cifar10'])
     assert result.exit_code == 0
 
-    # mim search mmcls --dataset cifar-1
+    # mim search onedl-mmpretrain --dataset cifar-1
     # invalid dataset
-    result = runner.invoke(search, ['mmcls', '--dataset', 'cifar-1'])
+    result = runner.invoke(search,
+                           ['onedl-mmpretrain', '--dataset', 'cifar-1'])
     assert result.exit_code == 1
 
-    # mim search mmcls --dataset cifar-10
-    result = runner.invoke(search, ['mmcls', '--dataset', 'cifar-10'])
-    assert result.exit_code == 0
-
-    # mim search mmcls --condition 'batch_size>45,epochs>100'
-    result = runner.invoke(
-        search, ['mmcls', '--condition', 'batch_size>45,epochs>100'])
-    assert result.exit_code == 0
-
-    # mim search mmcls --condition 'batch_size>45 epochs>100'
-    result = runner.invoke(
-        search, ['mmcls', '--condition', 'batch_size>45 epochs>100'])
-    assert result.exit_code == 0
-
-    # mim search mmcls --condition '128<batch_size<=256'
+    # mim search onedl-mmpretrain --dataset cifar-10
     result = runner.invoke(search,
-                           ['mmcls', '--condition', '128<batch_size<=256'])
+                           ['onedl-mmpretrain', '--dataset', 'cifar-10'])
     assert result.exit_code == 0
 
-    # mim search mmcls --sort epoch
-    result = runner.invoke(search, ['mmcls', '--sort', 'epoch'])
-    assert result.exit_code == 0
-    # mim search mmcls --sort epochs
-    result = runner.invoke(search, ['mmcls', '--sort', 'epochs'])
-    assert result.exit_code == 0
-
-    # mim search mmcls --sort batch_size epochs
-    result = runner.invoke(search, ['mmcls', '--sort', 'batch_size', 'epochs'])
+    # mim search onedl-mmpretrain --condition 'batch_size>45,epochs>100'
+    result = runner.invoke(
+        search,
+        ['onedl-mmpretrain', '--condition', 'batch_size>45,epochs>100'])
     assert result.exit_code == 0
 
-    # mim search mmcls --field epoch
-    result = runner.invoke(search, ['mmcls', '--field', 'epoch'])
+    # mim search onedl-mmpretrain --condition 'batch_size>45 epochs>100'
+    result = runner.invoke(
+        search,
+        ['onedl-mmpretrain', '--condition', 'batch_size>45 epochs>100'])
     assert result.exit_code == 0
-    # mim search mmcls --field epochs
-    result = runner.invoke(search, ['mmcls', '--field', 'epochs'])
+
+    # mim search onedl-mmpretrain --condition '128<batch_size<=256'
+    result = runner.invoke(
+        search, ['onedl-mmpretrain', '--condition', '128<batch_size<=256'])
+    assert result.exit_code == 0
+
+    # mim search onedl-mmpretrain --sort epoch
+    result = runner.invoke(search, ['onedl-mmpretrain', '--sort', 'epoch'])
+    assert result.exit_code == 0
+    # mim search onedl-mmpretrain --sort epochs
+    result = runner.invoke(search, ['onedl-mmpretrain', '--sort', 'epochs'])
+    assert result.exit_code == 0
+
+    # mim search onedl-mmpretrain --sort batch_size epochs
+    result = runner.invoke(
+        search, ['onedl-mmpretrain', '--sort', 'batch_size', 'epochs'])
+    assert result.exit_code == 0
+
+    # mim search onedl-mmpretrain --field epoch
+    result = runner.invoke(search, ['onedl-mmpretrain', '--field', 'epoch'])
+    assert result.exit_code == 0
+    # mim search onedl-mmpretrain --field epochs
+    result = runner.invoke(search, ['onedl-mmpretrain', '--field', 'epochs'])
     assert result.exit_code == 0
 
 
 def teardown_module():
     runner = CliRunner()
-    result = runner.invoke(uninstall, ['mmcv-full', '--yes'])
+    result = runner.invoke(uninstall, ['onedl-mmcv', '--yes'])
     assert result.exit_code == 0
-    result = runner.invoke(uninstall, ['mmcv', '--yes'])
-    assert result.exit_code == 0
-    result = runner.invoke(uninstall, ['mmcls', '--yes'])
+    result = runner.invoke(uninstall, ['onedl-mmpretrain', '--yes'])
     assert result.exit_code == 0

@@ -40,7 +40,7 @@ from mim.utils import (
     '--yes',
     'is_yes',
     is_flag=True,
-    help="Don't ask for confirmation of uninstall deletions."
+    help="Don't ask for confirmation of uninstall deletions. "
     'Deprecated, will have no effect.')
 def cli(
     args: Tuple[str],
@@ -56,8 +56,8 @@ def cli(
 
     \b
     Example:
-        > mim install mmdet mmcls
-        > mim install git+https://github.com/open-mmlab/mmdetection.git
+        > mim install mmdet onedl-mmpretrain
+        > mim install git+https://github.com/vbti-development/onedl-mmdetection.git  # noqa: E501
         > mim install -r requirements.txt
         > mim install -e <path>
         > mim install mmdet -i <url> -f <url>
@@ -124,7 +124,7 @@ def install(
     if parse_result.scheme == 'http':
         install_args += ['--trusted-host', parse_result.netloc]
 
-    # Add mmcv-full find links by default.
+    # Add onedl-mmcv find links by default.
     install_args += ['-f', get_mmcv_full_find_link(mmcv_base_url)]
 
     index_url_opt_names = ['-i', '--index-url', '--pypi-url']
@@ -153,7 +153,7 @@ def install(
 
 
 def get_mmcv_full_find_link(mmcv_base_url: str) -> str:
-    """Get the mmcv-full find link corresponding to the current environment.
+    """Get the onedl-mmcv find link corresponding to the current environment.
 
     Args:
         mmcv_base_url (str): The base URL of mmcv find link.
@@ -173,7 +173,7 @@ def get_mmcv_full_find_link(mmcv_base_url: str) -> str:
     else:
         device_link = 'cpu'
 
-    find_link = f'{mmcv_base_url}/mmcv/dist/{device_link}/torch{torch_v}/index.html'  # noqa: E501
+    find_link = f'{mmcv_base_url}/onedl-mmcv/dist/{device_link}/torch{torch_v}/index.html'  # noqa: E501
     return find_link
 
 
@@ -198,7 +198,7 @@ def patch_pkg_resources_distribution(
 
     def patched_requires(self, extras=()):
         deps = origin_requires(self, extras)
-        if self.project_name not in PKG2PROJECT or self.project_name == 'mmcv-full':  # noqa: E501
+        if self.project_name not in PKG2PROJECT or self.project_name == 'onedl-mmcv':  # noqa: E501
             return deps
 
         if 'mim' in self.extras:
@@ -245,7 +245,7 @@ def patch_importlib_distribution(index_url: Optional[str] = None) -> Generator:
 
     def patched_iter_dependencies(self, extras=()):
         deps = list(origin_iter_dependencies(self, extras))
-        if self.canonical_name not in PKG2PROJECT or self.canonical_name == 'mmcv-full':  # noqa: E501
+        if self.canonical_name not in PKG2PROJECT or self.canonical_name == 'onedl-mmcv':  # noqa: E501
             return deps
 
         if 'mim' in self.iter_provided_extras():
@@ -377,7 +377,7 @@ def check_mim_resources() -> None:
     importlib.reload(pip._vendor.pkg_resources)
     for pkg in pip._vendor.pkg_resources.working_set:  # type: ignore
         pkg_name = pkg.project_name
-        if pkg_name not in PKG2PROJECT or pkg_name == 'mmcv-full':
+        if pkg_name not in PKG2PROJECT or pkg_name == 'onedl-mmcv':
             continue
         if pkg.has_metadata('top_level.txt'):
             module_name = pkg.get_metadata('top_level.txt').split('\n')[0]

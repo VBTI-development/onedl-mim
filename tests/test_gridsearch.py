@@ -11,13 +11,11 @@ from mim.commands.uninstall import cli as uninstall
 
 def setup_module():
     runner = CliRunner()
-    result = runner.invoke(uninstall, ['mmcv-full', '--yes'])
+    result = runner.invoke(uninstall, ['onedl-mmcv', '--yes'])
     assert result.exit_code == 0
-    result = runner.invoke(uninstall, ['mmcv', '--yes'])
+    result = runner.invoke(uninstall, ['onedl-onedl-mmengine', '--yes'])
     assert result.exit_code == 0
-    result = runner.invoke(uninstall, ['mmengine', '--yes'])
-    assert result.exit_code == 0
-    result = runner.invoke(uninstall, ['mmcls', '--yes'])
+    result = runner.invoke(uninstall, ['onedl-mmpretrain', '--yes'])
     assert result.exit_code == 0
 
 
@@ -30,35 +28,35 @@ def setup_module():
 ])
 def test_gridsearch(gpus, tmp_path):
     runner = CliRunner()
-    result = runner.invoke(install, ['mmcls>=1.0.0rc0', '--yes'])
+    result = runner.invoke(install, ['onedl-mmpretrain>=1.0.0rc0', '--yes'])
     assert result.exit_code == 0
-    result = runner.invoke(install, ['mmengine', '--yes'])
+    result = runner.invoke(install, ['onedl-mmengine', '--yes'])
     assert result.exit_code == 0
     result = runner.invoke(install, ['mmcv>=2.0.0rc0', '--yes'])
     assert result.exit_code == 0
 
     args1 = [
-        'mmcls', 'tests/data/lenet5_mnist_2.0.py', f'--gpus={gpus}',
+        'onedl-mmpretrain', 'tests/data/lenet5_mnist_2.0.py', f'--gpus={gpus}',
         f'--work-dir={tmp_path}', '--search-args',
         '--optim_wrapper.optimizer.lr 1e-3 1e-4'
     ]
     args2 = [
-        'mmcls', 'tests/data/lenet5_mnist_2.0.py', f'--gpus={gpus}',
+        'onedl-mmpretrain', 'tests/data/lenet5_mnist_2.0.py', f'--gpus={gpus}',
         f'--work-dir={tmp_path}', '--search-args',
         '--optim_wrapper.optimizer.weight_decay 1e-3 1e-4'
     ]
     args3 = [
-        'mmcls', 'tests/data/xxx.py', f'--gpus={gpus}',
+        'onedl-mmpretrain', 'tests/data/xxx.py', f'--gpus={gpus}',
         f'--work-dir={tmp_path}', '--search-args',
         '--optim_wrapper.optimizer.lr 1e-3 1e-4'
     ]
     args4 = [
-        'mmcls', 'tests/data/lenet5_mnist_2.0.py', f'--gpus={gpus}',
+        'onedl-mmpretrain', 'tests/data/lenet5_mnist_2.0.py', f'--gpus={gpus}',
         f'--work-dir={tmp_path}', '--search-args'
     ]
 
     args5 = [
-        'mmcls', 'tests/data/lenet5_mnist_2.0.py', f'--gpus={gpus}',
+        'onedl-mmpretrain', 'tests/data/lenet5_mnist_2.0.py', f'--gpus={gpus}',
         f'--work-dir={tmp_path}', '--search-args',
         '--train_dataloader.dataset.pipeline.0.scale 16 32'
     ]
@@ -81,11 +79,9 @@ def test_gridsearch(gpus, tmp_path):
 
 def teardown_module():
     runner = CliRunner()
-    result = runner.invoke(uninstall, ['mmcv-full', '--yes'])
+    result = runner.invoke(uninstall, ['onedl-mmcv', '--yes'])
     assert result.exit_code == 0
-    result = runner.invoke(uninstall, ['mmcv-full', '--yes'])
+    result = runner.invoke(uninstall, ['onedl-mmengine', '--yes'])
     assert result.exit_code == 0
-    result = runner.invoke(uninstall, ['mmengine', '--yes'])
-    assert result.exit_code == 0
-    result = runner.invoke(uninstall, ['mmcls', '--yes'])
+    result = runner.invoke(uninstall, ['onedl-mmpretrain', '--yes'])
     assert result.exit_code == 0

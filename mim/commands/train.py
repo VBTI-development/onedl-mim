@@ -83,19 +83,27 @@ def cli(package: str,
     # Train models on a single server with CPU by setting `gpus` to 0 and
     # 'launcher' to 'none' (if applicable). The training script of the
     # corresponding codebase will fail if it doesn't support CPU training.
-    > mim train mmcls resnet101_b16x8_cifar10.py --work-dir tmp --gpus 0
+    > mim train onedl-mmpretrain resnet101_b16x8_cifar10.py --work-dir tmp \
+        --gpus 0
+
     # Train models on a single server with one GPU
-    > mim train mmcls resnet101_b16x8_cifar10.py --work-dir tmp --gpus 1
+    > mim train onedl-mmpretrain resnet101_b16x8_cifar10.py --work-dir tmp \
+        --gpus 1
+
     # Train models on a single server with 4 GPUs and pytorch distributed
-    > mim train mmcls resnet101_b16x8_cifar10.py --work-dir tmp --gpus 4 \
-        --launcher pytorch
+    > mim train onedl-mmpretrain resnet101_b16x8_cifar10.py --work-dir tmp \
+        --gpus 4 --launcher pytorch
+
     # Train models on a slurm HPC with one 8-GPU node
-    > mim train mmcls resnet101_b16x8_cifar10.py --launcher slurm --gpus 8 \
-        --gpus-per-node 8 --partition partition_name --work-dir tmp
+    > mim train onedl-mmpretrain resnet101_b16x8_cifar10.py --launcher slurm \
+        --gpus 8 --gpus-per-node 8 --partition partition_name --work-dir tmp
+
     # Print help messages of sub-command train
     > mim train -h
-    # Print help messages of sub-command train and the training script of mmcls
-    > mim train mmcls -h
+
+    # Print help messages of sub-command train and the training script of
+    # onedl-mmpretrain
+    > mim train onedl-mmpretrain -h
     """
     is_success, msg = train(
         package=package,

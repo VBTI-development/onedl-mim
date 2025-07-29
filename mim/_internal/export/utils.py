@@ -418,8 +418,9 @@ def _export_module(self, obj_cls: type, pack_module_dir, obj_type: str):
     parent = module.split('.')[0]
     new_module = module.replace(parent, 'pack')
 
-    # Not necessary to export module implemented in `mmcv` and `mmengine`
-    if parent in set(OFFICIAL_MODULES) - {'mmcv', 'mmengine'}:
+    # Not necessary to export module implemented in
+    # `onedl-mmcv` and `onedl-mmengine`
+    if parent in set(OFFICIAL_MODULES) - {'onedl-mmcv', 'onedl-mmengine'}:
 
         with open(file_path, encoding='utf-8') as f:
             top_ast_tree = ast.parse(f.read())

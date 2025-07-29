@@ -10,11 +10,9 @@ from mim.commands.uninstall import cli as uninstall
 
 def setup_module():
     runner = CliRunner()
-    result = runner.invoke(uninstall, ['mmcv-full', '--yes'])
+    result = runner.invoke(uninstall, ['onedl-mmcv', '--yes'])
     assert result.exit_code == 0
-    result = runner.invoke(uninstall, ['mmcv', '--yes'])
-    assert result.exit_code == 0
-    result = runner.invoke(uninstall, ['mmcls', '--yes'])
+    result = runner.invoke(uninstall, ['onedl-mmpretrain', '--yes'])
     assert result.exit_code == 0
 
 
@@ -27,21 +25,21 @@ def setup_module():
 ])
 def test_train(gpus, tmp_path):
     runner = CliRunner()
-    result = runner.invoke(install, ['mmcls>=1.0.0rc0', '--yes'])
+    result = runner.invoke(install, ['onedl-mmpretrain>=1.0.0rc0', '--yes'])
     assert result.exit_code == 0
-    result = runner.invoke(install, ['mmengine', '--yes'])
+    result = runner.invoke(install, ['onedl-mmengine', '--yes'])
     assert result.exit_code == 0
-    result = runner.invoke(install, ['mmcv>=2.0.0rc0', '--yes'])
+    result = runner.invoke(install, ['onedl-mmcv>=2.0.0rc0', '--yes'])
     assert result.exit_code == 0
 
     result = runner.invoke(train, [
-        'mmcls', 'tests/data/lenet5_mnist_2.0.py', f'--gpus={gpus}',
+        'onedl-mmpretrain', 'tests/data/lenet5_mnist_2.0.py', f'--gpus={gpus}',
         f'--work-dir={tmp_path}'
     ])
     assert result.exit_code == 0
 
     result = runner.invoke(train, [
-        'mmcls', 'tests/data/xxx.py', f'--gpus={gpus}',
+        'onedl-mmpretrain', 'tests/data/xxx.py', f'--gpus={gpus}',
         f'--work-dir={tmp_path}'
     ])
     assert result.exit_code != 0
@@ -49,9 +47,7 @@ def test_train(gpus, tmp_path):
 
 def teardown_module():
     runner = CliRunner()
-    result = runner.invoke(uninstall, ['mmcv-full', '--yes'])
+    result = runner.invoke(uninstall, ['onedl-mmcv', '--yes'])
     assert result.exit_code == 0
-    result = runner.invoke(uninstall, ['mmcv', '--yes'])
-    assert result.exit_code == 0
-    result = runner.invoke(uninstall, ['mmcls', '--yes'])
+    result = runner.invoke(uninstall, ['onedl-mmpretrain', '--yes'])
     assert result.exit_code == 0

@@ -40,9 +40,9 @@ def parse_url(url: str) -> Tuple[str, str]:
         url (str): Url for parsing username and repo name.
 
     Example:
-        >>> parse_url('https://github.com/open-mmlab/mmcv.git')
+        >>> parse_url('https://github.com/vbti-development/onedl-mmcv.git')
         'open-mmlab', 'mmcv'
-        >>> parse_ulr('git@github.com:open-mmlab/mmcv.git')
+        >>> parse_ulr('git@github.com:vbti-development/onedl-mmcv.git')
         'open-mmlab', 'mmcv'
     """
     if url.startswith('git@'):
@@ -111,11 +111,11 @@ def get_github_url(package: str) -> str:
     """Get github url.
 
     Args:
-        package (str): Name of package, like mmcls.
+        package (str): Name of package, like onedl-mmpretrain.
 
     Example:
-        >>> get_github_url('mmcls')
-        'https://github.com/open-mmlab/mmclassification.git'
+        >>> get_github_url('onedl-mmpretrain')
+        'https://github.com/vbti-development/onedl-mmclassification.git'
     """
     home_page = None
     if is_installed(package):
@@ -213,12 +213,12 @@ def split_package_version(package: str) -> Tuple[str, ...]:
         package (str): Name of package to split.
 
     Example:
-        >>> split_package_version('mmcls')
-        'mmcls', ''
-        >>> split_package_version('mmcls=0.11.0')
-        'mmcls', '0.11.0'
-        >>> split_package_version('mmcls==0.11.0')
-        'mmcls', '0.11.0'
+        >>> split_package_version('onedl-mmpretrain')
+        'onedl-mmpretrain', ''
+        >>> split_package_version('onedl-mmpretrain=0.11.0')
+        'onedl-mmpretrain', '0.11.0'
+        >>> split_package_version('onedl-mmpretrain==0.11.0')
+        'onedl-mmpretrain', '0.11.0'
     """
     if '=' in package:
         return tuple(re.split(r'=+', package))
@@ -286,7 +286,7 @@ def get_latest_version(package: str, timeout: int = 15) -> str:
         timeout (int): Set the socket timeout. Default: 15.
 
     Example:
-        >>> get_latest_version('mmcv-full')
+        >>> get_latest_version('onedl-mmcv')
             '0.11.0'
     """
     release_version = get_release_version(package, timeout)
@@ -321,13 +321,13 @@ def get_installed_path(package: str) -> str:
         package (str): Name of package.
 
     Example:
-        >>> get_installed_path('mmcls')
-        >>> '.../lib/python3.7/site-packages/mmcls'
+        >>> get_installed_path('onedl-mmpretrain')
+        >>> '.../lib/python3.7/site-packages/onedl-mmpretrain'
     """
     # if the package name is not the same as module name, module name should be
-    # inferred. For example, mmcv-full is the package name, but mmcv is module
-    # name. If we want to get the installed path of mmcv-full, we should concat
-    # the pkg.location and module name
+    # inferred. For example, onedl-mmcv is the package name, but mmcv is module
+    # name. If we want to get the installed path of onedl-mmcv, we should
+    # concat the pkg.location and module name
     pkg = get_distribution(package)
     possible_path = osp.join(pkg.location, package)  # type: ignore
     if osp.exists(possible_path):

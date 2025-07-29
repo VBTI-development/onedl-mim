@@ -13,7 +13,7 @@ def get_installed_package(ctx, args, incomplete):
 def get_downstream_package(ctx, args, incomplete):
     pkgs = []
     for pkg, _, _ in list_package():
-        if pkg == 'mmcv' or pkg == 'mmcv-full':
+        if pkg == 'onedl-mmcv':
             continue
         pkgs.append(pkg)
     return pkgs

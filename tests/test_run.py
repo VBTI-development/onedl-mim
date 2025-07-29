@@ -10,11 +10,9 @@ from mim.commands.uninstall import cli as uninstall
 
 def setup_module():
     runner = CliRunner()
-    result = runner.invoke(uninstall, ['mmcv-full', '--yes'])
+    result = runner.invoke(uninstall, ['onedl-mmcv', '--yes'])
     assert result.exit_code == 0
-    result = runner.invoke(uninstall, ['mmcv', '--yes'])
-    assert result.exit_code == 0
-    result = runner.invoke(uninstall, ['mmcls', '--yes'])
+    result = runner.invoke(uninstall, ['onedl-mmpretrain', '--yes'])
     assert result.exit_code == 0
 
 
@@ -28,38 +26,38 @@ def setup_module():
 ])
 def test_run(device, gpus, tmp_path):
     runner = CliRunner()
-    result = runner.invoke(install, ['mmcls>=1.0.0rc0', '--yes'])
+    result = runner.invoke(install, ['onedl-mmpretrain>=1.0.0rc0', '--yes'])
     assert result.exit_code == 0
-    result = runner.invoke(install, ['mmengine', '--yes'])
+    result = runner.invoke(install, ['onedl-mmengine', '--yes'])
     assert result.exit_code == 0
-    result = runner.invoke(install, ['mmcv>=2.0.0rc0', '--yes'])
+    result = runner.invoke(install, ['onedl-mmcv>=2.0.0rc0', '--yes'])
     assert result.exit_code == 0
 
     result = runner.invoke(run, [
-        'mmcls', 'train', 'tests/data/lenet5_mnist_2.0.py',
+        'onedl-mmpretrain', 'train', 'tests/data/lenet5_mnist_2.0.py',
         f'--work-dir={tmp_path}'
     ])
     assert result.exit_code == 0
     result = runner.invoke(run, [
-        'mmcls', 'test', 'tests/data/lenet5_mnist_2.0.py',
+        'onedl-mmpretrain', 'test', 'tests/data/lenet5_mnist_2.0.py',
         'tests/data/epoch_1.pth'
     ])
     assert result.exit_code == 0
     result = runner.invoke(run, [
-        'mmcls', 'xxx', 'tests/data/lenet5_mnist_2.0.py',
+        'onedl-mmpretrain', 'xxx', 'tests/data/lenet5_mnist_2.0.py',
         'tests/data/epoch_1.pth'
     ])
     assert result.exit_code != 0
-    result = runner.invoke(
-        run, ['mmcls', 'test', 'tests/data/xxx.py', 'tests/data/epoch_1.pth'])
+    result = runner.invoke(run, [
+        'onedl-mmpretrain', 'test', 'tests/data/xxx.py',
+        'tests/data/epoch_1.pth'
+    ])
     assert result.exit_code != 0
 
 
 def teardown_module():
     runner = CliRunner()
-    result = runner.invoke(uninstall, ['mmcv-full', '--yes'])
+    result = runner.invoke(uninstall, ['onedl-mmcv', '--yes'])
     assert result.exit_code == 0
-    result = runner.invoke(uninstall, ['mmcv', '--yes'])
-    assert result.exit_code == 0
-    result = runner.invoke(uninstall, ['mmcls', '--yes'])
+    result = runner.invoke(uninstall, ['onedl-mmpretrain', '--yes'])
     assert result.exit_code == 0
