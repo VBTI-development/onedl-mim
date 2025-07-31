@@ -1,0 +1,120 @@
+name: pr_stage_test
+
+on:
+  pull_request:
+    paths-ignore:
+      - 'README.md'
+      - 'docs/**'
+  push:
+    branches:
+      - main
+    paths-ignore:
+      - '**.md'
+      - 'docs/**'
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  test_linux:
+    runs-on: ubuntu-22.04
+    strategy:
+      matrix:
+        include:
+          - python-version: '3.10' # minimum version
+            torch: '2.4.1'
+            container: 'nvidia/cuda:11.1.1-cudnn8-devel-ubuntu20.04'
+          - python-version: '3.10'  # maximum version
+            torch: '2.5.1'
+            container: 'nvidia/cuda:12.8.0-cudnn-devel-ubuntu22.04'
+    container:
+      image: ${{ matrix.container }}
+    env:
+        UV_CACHE_DIR: /__w/_uv_cache # set cache to be on same disk to avoid hardlink copies.
+        DEBIAN_FRONTEND: noninteractive
+        TZ: Etc/UTC
+        LANG: C.UTF-8
+        LC_ALL: C.UTF-8
+    steps:
+      - uses: actions/checkout@v4
+      - name: Install uv and set the python version
+        uses: astral-sh/setup-uv@v6
+        with:
+          activate-environment: true
+          python-version: ${{ matrix.python-version }}
+          cache-local-path: /__w/_uv_cache
+      - name: Fetch GPG keys
+        run: |
+          apt-key adv --fetch-keys https://developer.download.nvidia.com/compute/cuda/repos/ubuntu1804/x86_64/3bf863cc.pub
+          apt-key adv --fetch-keys https://developer.download.nvidia.com/compute/machine-learning/repos/ubuntu1804/x86_64/7fa2af80.pub
+      - name: Install system dependencies
+        run: |
+          apt-get update
+          apt-get install -y libgl1 libglib2.0-0
+          apt-get clean -y
+      - name: Install torch
+        run: |
+          uv pip install -v --torch-backend=auto torch==${{ matrix.torch }} torchvision
+          uv cache clean
+      - name: Build and install
+        run: rm -rf .eggs && python -m pip install -e .
+      - name: Validate the installation
+        run: |
+          source .venv/bin/activate
+          python -c "import mim"
+          mim --help
+          python -m mim --help
+      - name: Install test dependencies
+        run: uv pip install -r pyproject.toml --group tests
+      - name: Run unit tests with coverage
+        run: |
+          set -e
+          uv run coverage run --branch --source mim -m pytest tests/
+          uv run coverage xml
+          uv run coverage report -m
+      - name: Code Coverage Summary Report
+        uses: irongut/CodeCoverageSummary@v1.3.0
+        with:
+          filename: coverage.xml
+          format: markdown
+          output: both
+          hide_branch_rate: false
+        if: ${{matrix.torch}} == '2.5.1'
+      - name: Add Coverage PR Comment
+        uses: marocchino/sticky-pull-request-comment@v2
+        if: github.event_name == 'pull_request' && ${{matrix.torch}} == '2.5.1'
+        with:
+          recreate: true
+          path: code-coverage-results.md
+
+  build_windows:
+    runs-on: windows-2022
+    strategy:
+      matrix:
+        python-version: ['3.10']
+        platform: [cpu]
+    steps:
+      - uses: actions/checkout@v4
+      - name: Install uv and set the python version
+        uses: astral-sh/setup-uv@v6
+        with:
+          activate-environment: true
+          python-version: ${{ matrix.python-version }}
+      - name: Install torch
+        run: uv pip install -v torch==2.3.1 torchvision
+      - name: Build and install
+        run: rm -rf .eggs && python -m pip install -e .
+      - name: Validate the installation
+        run: |
+          source .venv/bin/activate
+          python -c "import mim"
+          mim --help
+          python -m mim --help
+      - name: Install test dependencies
+        run: uv pip install -r pyproject.toml --group tests
+      - name: Run unit tests with coverage
+        run: |
+          set -e
+          uv run coverage run --branch --source mim -m pytest tests/
+          uv run coverage xml
