@@ -231,7 +231,7 @@ def get_mmcv_full_find_link(mmcv_base_url: str) -> str:
     else:
         device_link = 'cpu'
 
-    find_link = f'{mmcv_base_url}/{device_link}-torch{torch_v}/index.html'  # noqa: E501
+    find_link = f'{mmcv_base_url}/{device_link.replace(".", "")}-torch{torch_v.replace(".", "")}/index.html'  # noqa: E501
     return find_link
 
 

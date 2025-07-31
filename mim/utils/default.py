@@ -5,8 +5,7 @@ import os.path as osp
 USER = 'vbti-development'
 DEFAULT_URL = f'https://github.com/{USER}'
 
-# DEFAULT_MMCV_BASE_URL = 'https://download.openmmlab.com'
-DEFAULT_MMCV_BASE_URL = 'https://mmwheels.onedl.ai/simple'
+DEFAULT_MMCV_BASE_URL = 'https://mmwheels.onedl.ai'
 
 RAW_GITHUB_URL = 'https://raw.githubusercontent.com/{owner}/{repo}/{branch}'
 
