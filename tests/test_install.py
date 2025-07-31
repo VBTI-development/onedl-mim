@@ -30,8 +30,8 @@ def test_mmcv_install():
     result = runner.invoke(install, ['onedl-mmcv', '--yes'])
     assert result.exit_code == 0, result.output
 
-    # mim install onedl-mmcv==1.3.1 --yes
-    result = runner.invoke(install, ['onedl-mmcv==1.3.1', '--yes'])
+    # mim install onedl-mmcv==2.3.0 --yes
+    result = runner.invoke(install, ['onedl-mmcv==2.3.0rc0', '--yes'])
     assert result.exit_code == 0, result.output
 
     # mim uninstall onedl-mmcv --yes
@@ -84,8 +84,8 @@ def test_mmrepo_install():
     result = runner.invoke(install, ['onedl-mmpretrain', '--yes'])
     assert result.exit_code == 0, result.output
 
-    # mim install onedl-mmpretrain==0.11.0 --yes
-    result = runner.invoke(install, ['onedl-mmpretrain==0.11.0', '--yes'])
+    # mim install onedl-mmpretrain==1.3.0rc0 --yes
+    result = runner.invoke(install, ['onedl-mmpretrain==1.3.0rc0', '--yes'])
     assert result.exit_code == 0, result.output
 
     result = runner.invoke(uninstall, ['onedl-mmcv', '--yes'])
@@ -153,8 +153,10 @@ def test_extract_package_name(package_spec, expected_name, expected_extras,
 def test_extract_package_name_invalid(invalid_spec):
     """Test the extract_package_name function with invalid package
     specifications."""
-    with pytest.raises(ValueError, match='Invalid package specification'):
-        extract_package_name(invalid_spec)
+    package_name, extras, version_spec = extract_package_name(invalid_spec)
+    assert package_name == invalid_spec
+    assert extras is None
+    assert version_spec == ''
 
 
 @pytest.mark.parametrize(
@@ -207,7 +209,7 @@ def test_extract_package_name_invalid(invalid_spec):
           ], ['onedl-mmpretrain[dev,mminstall]']),
         # Test different OpenMMLab packages
         (['onedl-mmdet'], ['onedl-mmdet[mminstall]']),
-        (['mmsegmentation'], ['mmsegmentation[mminstall]']),
+        (['onedl-mmsegmentation'], ['onedl-mmsegmentation[mminstall]']),
         # Test packages with exact version
         (['onedl-mmpretrain==1.2.3'], ['onedl-mmpretrain[mminstall]==1.2.3']),
         # Test packages with inequality operators

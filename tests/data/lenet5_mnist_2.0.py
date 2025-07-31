@@ -15,7 +15,7 @@ data_preprocessor = dict(mean=[33.46], std=[78.87])
 pipeline = [
     dict(type='Resize', scale=32),
     dict(type='Pad', size=(32, 32)),
-    dict(type='PackClsInputs')
+    dict(type='PackInputs')
 ]
 
 common_data_cfg = dict(
@@ -57,7 +57,7 @@ val_cfg = dict()
 test_cfg = dict()
 
 # runtime settings
-default_scope = 'mmcls'
+default_scope = 'mmpretrain'
 
 default_hooks = dict(
     # record the time of every iteration.

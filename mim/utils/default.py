@@ -21,7 +21,7 @@ PKG2PROJECT = {
     'onedl-mmpretrain': 'mmpretrain',
     'onedl-mmdet': 'mmdetection',
     'mmdet3d': 'mmdetection3d',
-    'mmsegmentation': 'mmsegmentation',
+    'onedl-mmsegmentation': 'mmsegmentation',
     'mmaction2': 'mmaction2',
     'mmtrack': 'mmtracking',
     'mmpose': 'mmpose',
@@ -38,11 +38,11 @@ PKG2PROJECT = {
 PKG2MODULE = {
     'onedl-mmcv': 'mmcv',
     'mmaction2': 'mmaction',
-    'mmsegmentation': 'mmseg',
+    'onedl-mmsegmentation': 'mmseg',
 }
 MODULE2PKG = {
     'mmaction': 'mmaction2',
-    'mmseg': 'mmsegmentation',
+    'mmseg': 'onedl-mmsegmentation',
 }
 
 HOME = osp.expanduser('~')

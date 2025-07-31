@@ -29,14 +29,14 @@ def test_search():
     result = runner.invoke(search, ['onedl-mmpretrain', '--remote'])
     assert result.exit_code == 0, result.output
     # mim search mmsegmentation --remote
-    result = runner.invoke(search, ['mmsegmentation', '--remote'])
+    result = runner.invoke(search, ['onedl-mmsegmentation', '--remote'])
     assert result.exit_code == 0, result.output
     # mim search mmaction2 --remote
     result = runner.invoke(search, ['mmaction2', '--remote'])
     assert result.exit_code == 0, result.output
 
     # mim search onedl-mmpretrain==0.24.0 --remote
-    result = runner.invoke(search, ['onedl-mmpretrain==0.24.0', '--remote'])
+    result = runner.invoke(search, ['onedl-mmpretrain==1.3.0rc0', '--remote'])
     assert result.exit_code == 0, result.output
 
     # always test latest onedl-mmpretrain

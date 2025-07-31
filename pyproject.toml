@@ -48,10 +48,11 @@ tests = [
     "flake8",
     "interrogate",
     "pytest",
+    "opencv-python",
 ]
 
 [project.optional-dependencies]
-torch = [ "torch", "torchvision" ]
+torch = [ "torch<2.6.0", "torchvision" ]
 
 [project.urls]
 Homepage = "https://github.com/vbti-development/onedl-mim"

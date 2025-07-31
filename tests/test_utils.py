@@ -17,28 +17,28 @@ def setup_module():
 
 def test_parse_home_page():
     runner = CliRunner()
-    result = runner.invoke(install, ['onedl-mmpretrain', '--yes'])
+    result = runner.invoke(install, ['onedl-mmengine', '--yes'])
     assert result.exit_code == 0, result.output
     assert parse_home_page(
-        'onedl-mmpretrain'
-    ) == 'https://github.com/vbti-development/onedl-mmpretrain'
-    result = runner.invoke(uninstall, ['onedl-mmpretrain', '--yes'])
+        'onedl-mmengine'
+    ) == 'https://github.com/vbti-development/onedl-mmengine'
+    result = runner.invoke(uninstall, ['onedl-mmengine', '--yes'])
     assert result.exit_code == 0, result.output
 
 
 def test_get_github_url():
     runner = CliRunner()
-    result = runner.invoke(install, ['onedl-mmpretrain', '--yes'])
+    result = runner.invoke(install, ['onedl-mmengine', '--yes'])
     assert result.exit_code == 0, result.output
     assert get_github_url(
-        'onedl-mmpretrain'
-    ) == 'https://github.com/vbti-development/onedl-mmpretrain.git'
+        'onedl-mmengine'
+    ) == 'https://github.com/vbti-development/onedl-mmengine.git'
 
-    result = runner.invoke(uninstall, ['onedl-mmpretrain', '--yes'])
+    result = runner.invoke(uninstall, ['onedl-mmengine', '--yes'])
     assert result.exit_code == 0, result.output
     assert get_github_url(
-        'onedl-mmpretrain'
-    ) == 'https://github.com/vbti-development/onedl-mmpretrain.git'
+        'onedl-mmengine'
+    ) == 'https://github.com/vbti-development/onedl-mmengine.git'
 
 
 def test_get_torch_device_version():

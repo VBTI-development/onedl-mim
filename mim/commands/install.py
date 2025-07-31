@@ -95,7 +95,7 @@ def extract_package_name(package_spec: str) -> Sequence[Optional[str]]:
     if match:
         return match.groups()
 
-    return package_name_pattern, None, ''
+    return package_spec, None, ''
 
 
 def modify_install_args(install_args: List[str]) -> List[str]:

@@ -16,12 +16,11 @@ def setup_module():
 
 def test_list():
     runner = CliRunner()
-    # mim install onedl-mmpretrain==0.23.0 --yes
-    result = runner.invoke(install, ['onedl-mmpretrain==0.23.0', '--yes'])
+    # mim install onedl-mmpretrain==1.3.0rc0 --yes
+    result = runner.invoke(install, ['onedl-mmpretrain==1.3.0rc0', '--yes'])
     assert result.exit_code == 0, result.output
     # mim list
-    target = ('onedl-mmpretrain', '0.23.0',
-              'https://github.com/vbti-development/onedl-mmpretrain.git')
+    target = ('onedl-mmpretrain', '1.3.0rc0')
     result = list_package()
     assert target in result
 

@@ -47,8 +47,8 @@ Please refer to [installation.md](docs/en/installation.md) for installation.
   ```bash
   # install latest version of onedl-mmcv
   > mim install onedl-mmcv  # wheel
-  # install 1.5.0
-  > mim install onedl-mmcv==1.5.0
+  # install 2.3.0
+  > mim install onedl-mmcv==2.3.0
 
   # install latest version of onedl-mmpretrain
   > mim install onedl-mmpretrain

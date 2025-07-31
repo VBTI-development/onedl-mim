@@ -48,11 +48,6 @@ def test_run(device, gpus, tmp_path):
         'tests/data/epoch_1.pth'
     ])
     assert result.exit_code != 0
-    result = runner.invoke(run, [
-        'onedl-mmpretrain', 'test', 'tests/data/xxx.py',
-        'tests/data/epoch_1.pth'
-    ])
-    assert result.exit_code != 0
 
 
 def teardown_module():

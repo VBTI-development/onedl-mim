@@ -106,7 +106,15 @@ def parse_home_page(package: str) -> Optional[str]:
         metadata = pkg.get_metadata('METADATA')
         feed_parser = FeedParser()
         feed_parser.feed(metadata)
-        home_page = feed_parser.close().get('home-page')
+        parsed = feed_parser.close()
+
+        urls = parsed.get_all('project-url')
+        home_page = ''
+        for project_url in urls:
+            label, url_ = project_url.split(',', 1)
+            if label.lower() == 'repository':
+                home_page = url_.strip().lower()
+                break
     return home_page
 
 
@@ -127,7 +135,8 @@ def get_github_url(package: str) -> str:
     if not home_page:
         try:
             pkg_info = get_package_info_from_pypi(package)
-            home_page = pkg_info['info'].get('home_page')
+            home_page = pkg_info['info'].get('project_urls',
+                                             {}).get('Repository', '').lower()
         except Exception:
             pass
 
