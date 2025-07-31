@@ -32,7 +32,7 @@ def test_gridsearch(gpus, tmp_path):
     assert result.exit_code == 0, result.output
     result = runner.invoke(install, ['onedl-mmengine', '--yes'])
     assert result.exit_code == 0, result.output
-    result = runner.invoke(install, ['mmcv>=2.0.0rc0', '--yes'])
+    result = runner.invoke(install, ['onedl-mmcv>=2.0.0rc0', '--yes'])
     assert result.exit_code == 0, result.output
 
     args1 = [

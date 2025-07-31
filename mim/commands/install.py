@@ -1,11 +1,12 @@
 # Copyright (c) OpenMMLab. All rights reserved.
 import importlib
 import os
+import re
 import tarfile
 import tempfile
 import typing
 from contextlib import contextmanager
-from typing import Any, Callable, Generator, List, Optional, Tuple
+from typing import Any, Callable, Generator, List, Optional, Sequence, Tuple
 from urllib.parse import urlparse
 
 import click
@@ -73,6 +74,59 @@ def cli(
     exit(exit_code)
 
 
+def extract_package_name(package_spec: str) -> Sequence[Optional[str]]:
+    """Extract the base package name from a pip package specification.
+
+    Examples:
+        onedl-mmpretrain -> onedl-mmpretrain
+        onedl-mmpretrain[mminstall] -> onedl-mmpretrain
+        onedl-mmpretrain[mminstall]>=1.0.0rc0 -> onedl-mmpretrain
+        onedl-mmpretrain>=1.0.0,<2.0.0 -> onedl-mmpretrain
+    """
+    # Pattern to match package name before any extras or version specifiers
+    package_name_pattern = r'([a-zA-Z0-9](?:[a-zA-Z0-9._-]*[a-zA-Z0-9])?)'
+    extras_pattern = r'(?:\[([a-zA-Z0-9,._-]+)\])?'
+    version_spec_pattern = (r'((?:[<>=!~]+[a-zA-Z0-9.]+(?:[a-zA-Z]+[0-9]*)?'
+                            r'(?:\.[a-zA-Z0-9]+)*,?)*)')
+
+    full_pattern = (fr'^{package_name_pattern}{extras_pattern}'
+                    fr'{version_spec_pattern}$')
+    match = re.match(full_pattern, package_spec.strip())
+    if match:
+        return match.groups()
+
+    return package_name_pattern, None, ''
+
+
+def modify_install_args(install_args: List[str]) -> List[str]:
+    """Modify the install arguments to include [mminstall] extra for OpenMMLab
+    packages."""
+
+    modified_install_args = []
+    for arg in install_args:
+        # Skip option flags
+        if arg.startswith('-'):
+            modified_install_args.append(arg)
+            continue
+
+        # Check if this is an OpenMMLab package
+        package_name, extras, version_spec = extract_package_name(arg)
+        if package_name in PKG2PROJECT and package_name != 'onedl-mmcv':
+            if extras is None:
+                extras = ''
+            # Add [mminstall] extra if not already present
+            if 'mminstall' not in extras:
+                if extras:
+                    extras += ','
+                extras += 'mminstall'
+            modified_arg = f'{package_name}[{extras}]{version_spec}'
+            modified_install_args.append(modified_arg)
+        else:
+            modified_install_args.append(arg)
+
+    return modified_install_args
+
+
 def install(
     install_args: List[str],
     index_url: Optional[str] = None,
@@ -135,28 +189,7 @@ def install(
     if index_url is not None:
         install_args += ['-i', index_url]
 
-    # Modify package names to include [mminstall] extra for OpenMMLab packages
-    modified_install_args = []
-    for arg in install_args:
-        # Skip option flags
-        if arg.startswith('-'):
-            modified_install_args.append(arg)
-            continue
-
-        # Check if this is an OpenMMLab package
-        package_name = arg.split('==')[0].split('>=')[0].split('<=')[0].split(
-            '>')[0].split('<')[0].split('!=')[0]
-        if package_name in PKG2PROJECT and package_name != 'onedl-mmcv':
-            # Add [mminstall] extra if not already present
-            if '[' not in arg:
-                modified_arg = f'{arg}[mminstall]'
-                echo_warning(f'Adding [mminstall] extra to {package_name}: '
-                             f'{modified_arg}')
-                modified_install_args.append(modified_arg)
-            else:
-                modified_install_args.append(arg)
-        else:
-            modified_install_args.append(arg)
+    modified_install_args = modify_install_args(install_args)
 
     install_args = modified_install_args
 
@@ -198,7 +231,7 @@ def get_mmcv_full_find_link(mmcv_base_url: str) -> str:
     else:
         device_link = 'cpu'
 
-    find_link = f'{mmcv_base_url}/onedl-mmcv/dist/{device_link}/torch{torch_v}/index.html'  # noqa: E501
+    find_link = f'{mmcv_base_url}/{device_link}-torch{torch_v}/index.html'  # noqa: E501
     return find_link
 
 
