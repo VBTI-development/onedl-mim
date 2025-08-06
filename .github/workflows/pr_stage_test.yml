@@ -36,6 +36,7 @@ jobs:
         TZ: Etc/UTC
         LANG: C.UTF-8
         LC_ALL: C.UTF-8
+        PIP_PRE: true
     steps:
       - uses: actions/checkout@v4
       - name: Install uv and set the python version
@@ -93,6 +94,8 @@ jobs:
       matrix:
         python-version: ['3.10']
         platform: [cpu]
+    env:
+        PIP_PRE: true
     steps:
       - uses: actions/checkout@v4
       - name: Install uv and set the python version
@@ -113,6 +116,5 @@ jobs:
         run: uv pip install -r pyproject.toml --group tests
       - name: Run unit tests with coverage
         run: |
-          set -e
           uv run coverage run --branch --source mim -m pytest tests/
           uv run coverage xml
