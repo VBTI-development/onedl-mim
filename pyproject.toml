@@ -32,6 +32,7 @@ dependencies = [
     "requests",
     "rich",
     "tabulate",
+    "numpy<2",
 ]
 
 [dependency-groups]
