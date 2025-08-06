@@ -22,7 +22,7 @@
 	// "forwardPorts": [],
 
 	// Use 'postCreateCommand' to run commands after the container is created.
-	"postCreateCommand": "apt-get update && apt-get install -y libgl1 && cp .devcontainer/pip.conf /etc/.",
+	"postCreateCommand": "apt-get update && apt-get install -y libgl1 libglib2.0-0 && cp .devcontainer/pip.conf /etc/.",
 
 	// Configure tool-specific properties.
 	// "customizations": {},
