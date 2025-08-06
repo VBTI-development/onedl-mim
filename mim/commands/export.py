@@ -3,10 +3,7 @@ import os.path as osp
 import sys
 
 import click
-from mmengine.config import Config
-from mmengine.hub import get_config
 
-from mim._internal.export.pack_cfg import export_from_cfg
 from mim.click import CustomCommand
 
 PYTHON = sys.executable
@@ -38,7 +35,7 @@ def cli(config: str,
         export_dir: str,
         fast_test: bool = False,
         save_log: bool = False) -> None:
-    """Export package from config file.
+    """Export package from config file (requires onedl-mmengine).
 
     Example:
 
@@ -65,6 +62,16 @@ def cli(config: str,
     >>> # Print the help information of export command.
     >>> mim export -h
     """
+
+    try:
+        from mmengine.config import Config
+        from mmengine.hub import get_config
+
+        from mim._internal.export.pack_cfg import export_from_cfg
+    except ImportError:
+        raise ImportError(
+            'Please install onedl-mmengine to use the export command: '
+            '`mim install onedl-mmengine`.')
 
     # get config
     if osp.exists(config):

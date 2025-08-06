@@ -60,7 +60,8 @@ def cli(package: str,
         dataset: Optional[str],
         dest_root: Optional[str] = None,
         check_certificate: bool = True) -> None:
-    """Download checkpoints from url and parse configs from package.
+    """Download checkpoints from url and parse configs from package (requires
+    onedl-mmengine).
 
     \b
     Example:
