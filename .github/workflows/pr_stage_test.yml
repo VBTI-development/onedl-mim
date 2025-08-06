@@ -27,7 +27,7 @@ jobs:
             container: 'nvidia/cuda:11.8.0-cudnn8-devel-ubuntu22.04'
           - python-version: '3.10'  # maximum version
             torch: '2.5.1'
-            container: 'nvidia/cuda:12.8.0-cudnn-devel-ubuntu22.04'
+            container: 'nvidia/cuda:12.4.0-cudnn-devel-ubuntu22.04'
     container:
       image: ${{ matrix.container }}
     env:
@@ -67,6 +67,9 @@ jobs:
           python -m mim --help
       - name: Install test dependencies
         run: uv pip install -r pyproject.toml --group tests
+      - name: Show numpy config
+        run: |
+          python -c "import numpy; print(numpy.show_config())"
       - name: Run unit tests with coverage
         run: |
           set -e
@@ -94,6 +97,10 @@ jobs:
       matrix:
         python-version: ['3.10']
         platform: [cpu]
+
+    defaults:
+      run:
+        shell: bash
     env:
         PIP_PRE: true
     steps:
