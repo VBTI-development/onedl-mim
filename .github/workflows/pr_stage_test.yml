@@ -27,7 +27,7 @@ jobs:
             container: 'nvidia/cuda:11.8.0-cudnn8-devel-ubuntu22.04'
           - python-version: '3.10'  # maximum version
             torch: '2.5.1'
-            container: 'nvidia/cuda:12.4.0-cudnn-devel-ubuntu22.04'
+            container: 'nvidia/cuda:12.4.1-cudnn-devel-ubuntu22.04'
     container:
       image: ${{ matrix.container }}
     env:
@@ -73,9 +73,9 @@ jobs:
       - name: Run unit tests with coverage
         run: |
           set -e
-          uv run coverage run --branch --source mim -m pytest tests/
-          uv run coverage xml
-          uv run coverage report -m
+          coverage run --branch --source mim -m pytest tests/
+          coverage xml
+          coverage report -m
       - name: Code Coverage Summary Report
         uses: irongut/CodeCoverageSummary@v1.3.0
         with:
@@ -123,5 +123,5 @@ jobs:
         run: uv pip install -r pyproject.toml --group tests
       - name: Run unit tests with coverage
         run: |
-          uv run coverage run --branch --source mim -m pytest tests/
-          uv run coverage xml
+          coverage run --branch --source mim -m pytest tests/
+          coverage xml
