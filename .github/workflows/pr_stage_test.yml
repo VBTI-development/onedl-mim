@@ -61,7 +61,6 @@ jobs:
         run: uv pip install -e .
       - name: Validate the installation
         run: |
-          source .venv/bin/activate
           python -c "import mim"
           mim --help
           python -m mim --help
@@ -107,7 +106,6 @@ jobs:
         run: uv pip install -e .
       - name: Validate the installation
         run: |
-          source .venv/bin/activate
           python -c "import mim"
           mim --help
           python -m mim --help
