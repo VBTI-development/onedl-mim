@@ -2,31 +2,25 @@
 import os
 import os.path as osp
 
-USER = 'open-mmlab'
+USER = 'vbti-development'
 DEFAULT_URL = f'https://github.com/{USER}'
 
-DEFAULT_MMCV_BASE_URL = 'https://download.openmmlab.com'
+DEFAULT_MMCV_BASE_URL = 'https://mmwheels.onedl.ai'
 
-WHEEL_URL = {
-    'mmcv-full':
-    'https://download.openmmlab.com/mmcv/dist/{cuda_version}/'
-    '{torch_version}/index.html',
-}
 RAW_GITHUB_URL = 'https://raw.githubusercontent.com/{owner}/{repo}/{branch}'
 
 OFFICIAL_MODULES = [
-    'mmcls', 'mmdet', 'mmdet3d', 'mmseg', 'mmaction2', 'mmtrack', 'mmpose',
-    'mmedit', 'mmocr', 'mmgen', 'mmselfsup', 'mmrotate', 'mmflow', 'mmyolo',
-    'mmpretrain', 'mmagic'
+    'onedl-mmpretrain', 'onedl-mmdet', 'mmdet3d', 'mmseg', 'mmaction2',
+    'mmtrack', 'mmpose', 'mmedit', 'mmocr', 'mmgen', 'mmselfsup', 'mmrotate',
+    'mmflow', 'mmyolo', 'mmagic'
 ]
 
 PKG2PROJECT = {
-    'mmcv-full': 'mmcv',
-    'mmcls': 'mmclassification',
-    'mmpretrain': 'mmpretrain',
-    'mmdet': 'mmdetection',
+    'onedl-mmcv': 'mmcv',
+    'onedl-mmpretrain': 'mmpretrain',
+    'onedl-mmdet': 'mmdetection',
     'mmdet3d': 'mmdetection3d',
-    'mmsegmentation': 'mmsegmentation',
+    'onedl-mmsegmentation': 'mmsegmentation',
     'mmaction2': 'mmaction2',
     'mmtrack': 'mmtracking',
     'mmpose': 'mmpose',
@@ -41,13 +35,13 @@ PKG2PROJECT = {
 }
 # TODO: Should directly infer MODULE name from PKG info
 PKG2MODULE = {
-    'mmcv-full': 'mmcv',
+    'onedl-mmcv': 'mmcv',
     'mmaction2': 'mmaction',
-    'mmsegmentation': 'mmseg',
+    'onedl-mmsegmentation': 'mmseg',
 }
 MODULE2PKG = {
     'mmaction': 'mmaction2',
-    'mmseg': 'mmsegmentation',
+    'mmseg': 'onedl-mmsegmentation',
 }
 
 HOME = osp.expanduser('~')

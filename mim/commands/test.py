@@ -87,23 +87,24 @@ def cli(package: str,
 
     \b
     # Test models on a single server with 1 GPU, report accuracy
-    > mim test mmcls resnet101_b16x8_cifar10.py --checkpoint \
+    > mim test onedl-mmpretrain resnet101_b16x8_cifar10.py --checkpoint \
         tmp/epoch_3.pth --gpus 1 --metrics accuracy
     # Test models on a single server with 1 GPU, save predictions
-    > mim test mmcls resnet101_b16x8_cifar10.py --checkpoint \
+    > mim test onedl-mmpretrain resnet101_b16x8_cifar10.py --checkpoint \
         tmp/epoch_3.pth --gpus 1 --out tmp.pkl
     # Test models on a single server with 4 GPUs, pytorch distributed,
     # report accuracy
-    > mim test mmcls resnet101_b16x8_cifar10.py --checkpoint \
+    > mim test onedl-mmpretrain resnet101_b16x8_cifar10.py --checkpoint \
         tmp/epoch_3.pth --gpus 4 --launcher pytorch --metrics accuracy
     # Test models on a slurm HPC with one 8-GPU node, report accuracy
-    > mim test mmcls resnet101_b16x8_cifar10.py --checkpoint \
+    > mim test onedl-mmpretrain resnet101_b16x8_cifar10.py --checkpoint \
         tmp/epoch_3.pth --gpus 8 --metrics accuracy --partition \
         partition_name --gpus-per-node 8 --launcher slurm
     # Print help messages of sub-command test
     > mim test -h
-    # Print help messages of sub-command test and the testing script of mmcls
-    > mim test mmcls -h
+    # Print help messages of sub-command test and the testing script of
+    # onedl-mmpretrain
+    > mim test onedl-mmpretrain -h
     """
 
     is_success, msg = test(

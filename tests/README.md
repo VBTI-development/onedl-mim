@@ -47,7 +47,7 @@ Please refer to [installation.md](docs/en/installation.md) for installation.
   ```bash
   # install latest version of onedl-mmcv
   > mim install onedl-mmcv  # wheel
-  # install 1.5.0
+  # install 2.3.0
   > mim install onedl-mmcv==2.3.0
 
   # install latest version of onedl-mmpretrain
@@ -402,7 +402,7 @@ This project is released under the [Apache 2.0 license](LICENSE).
 
 ## Projects in VBTI-development
 
-- [MMEngine](https://github.com/vbti-development/onedl-mmengine): OpenMMLab foundational library for training deep learning models.
+- [OneDL-MMEngine](https://github.com/vbti-development/onedl-onedl-mmengine): OpenMMLab foundational library for training deep learning models.
 - [MMCV](https://github.com/vbti-development/onedl-mmcv): OpenMMLab foundational library for computer vision.
 - [MMPreTrain](https://github.com/vbti-development/onedl-mmpretrain): OpenMMLab pre-training toolbox and benchmark.
 - [MMDetection](https://github.com/vbti-development/onedl-mmdetection): OpenMMLab detection toolbox and benchmark.

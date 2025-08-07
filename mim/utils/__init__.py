@@ -9,7 +9,6 @@ from .default import (
     PKG2PROJECT,
     RAW_GITHUB_URL,
     USER,
-    WHEEL_URL,
 )
 from .progress_bars import rich_progress_bar
 from .utils import (
@@ -69,7 +68,6 @@ __all__ = [
     'recursively_find',
     'color_echo',
     'USER',
-    'WHEEL_URL',
     'DEFAULT_MMCV_BASE_URL',
     'split_package_version',
     'call_command',

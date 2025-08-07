@@ -41,9 +41,9 @@ def cli(args: Tuple,
     \b
     Example:
 
-        > mim uninstall mmcv-full
-        > mim uninstall -y mmcv-full
-        > mim uninstall mmdet mmcls
+        > mim uninstall onedl-mmcv
+        > mim uninstall -y onedl-mmcv
+        > mim uninstall mmdet onedl-mmpretrain
 
     Here we list several commonly used options.
 

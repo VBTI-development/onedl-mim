@@ -1,11 +1,12 @@
 # Copyright (c) OpenMMLab. All rights reserved.
 import importlib
 import os
+import re
 import tarfile
 import tempfile
 import typing
 from contextlib import contextmanager
-from typing import Any, Callable, Generator, List, Optional, Tuple
+from typing import Any, Callable, Generator, List, Optional, Sequence, Tuple
 from urllib.parse import urlparse
 
 import click
@@ -17,7 +18,6 @@ from mim.utils import (
     DEFAULT_MMCV_BASE_URL,
     PKG2PROJECT,
     echo_warning,
-    exit_with_error,
     get_torch_device_version,
 )
 
@@ -41,7 +41,7 @@ from mim.utils import (
     '--yes',
     'is_yes',
     is_flag=True,
-    help="Don't ask for confirmation of uninstall deletions."
+    help="Don't ask for confirmation of uninstall deletions. "
     'Deprecated, will have no effect.')
 def cli(
     args: Tuple[str],
@@ -57,8 +57,8 @@ def cli(
 
     \b
     Example:
-        > mim install mmdet mmcls
-        > mim install git+https://github.com/open-mmlab/mmdetection.git
+        > mim install mmdet onedl-mmpretrain
+        > mim install git+https://github.com/vbti-development/onedl-mmdetection.git  # noqa: E501
         > mim install -r requirements.txt
         > mim install -e <path>
         > mim install mmdet -i <url> -f <url>
@@ -72,6 +72,59 @@ def cli(
             'The `--yes` option has been deprecated, will have no effect.')
     exit_code = install(list(args), index_url=index_url, is_yes=is_yes)
     exit(exit_code)
+
+
+def extract_package_name(package_spec: str) -> Sequence[Optional[str]]:
+    """Extract the base package name from a pip package specification.
+
+    Examples:
+        onedl-mmpretrain -> onedl-mmpretrain
+        onedl-mmpretrain[mminstall] -> onedl-mmpretrain
+        onedl-mmpretrain[mminstall]>=1.0.0rc0 -> onedl-mmpretrain
+        onedl-mmpretrain>=1.0.0,<2.0.0 -> onedl-mmpretrain
+    """
+    # Pattern to match package name before any extras or version specifiers
+    package_name_pattern = r'([a-zA-Z0-9](?:[a-zA-Z0-9._-]*[a-zA-Z0-9])?)'
+    extras_pattern = r'(?:\[([a-zA-Z0-9,._-]+)\])?'
+    version_spec_pattern = (r'((?:[<>=!~]+[a-zA-Z0-9.]+(?:[a-zA-Z]+[0-9]*)?'
+                            r'(?:\.[a-zA-Z0-9]+)*,?)*)')
+
+    full_pattern = (fr'^{package_name_pattern}{extras_pattern}'
+                    fr'{version_spec_pattern}$')
+    match = re.match(full_pattern, package_spec.strip())
+    if match:
+        return match.groups()
+
+    return package_spec, None, ''
+
+
+def modify_install_args(install_args: List[str]) -> List[str]:
+    """Modify the install arguments to include [mminstall] extra for OpenMMLab
+    packages."""
+
+    modified_install_args = []
+    for arg in install_args:
+        # Skip option flags
+        if arg.startswith('-'):
+            modified_install_args.append(arg)
+            continue
+
+        # Check if this is an OpenMMLab package
+        package_name, extras, version_spec = extract_package_name(arg)
+        if package_name in PKG2PROJECT and package_name != 'onedl-mmcv':
+            if extras is None:
+                extras = ''
+            # Add [mminstall] extra if not already present
+            if 'mminstall' not in extras:
+                if extras:
+                    extras += ','
+                extras += 'mminstall'
+            modified_arg = f'{package_name}[{extras}]{version_spec}'
+            modified_install_args.append(modified_arg)
+        else:
+            modified_install_args.append(arg)
+
+    return modified_install_args
 
 
 def install(
@@ -125,7 +178,7 @@ def install(
     if parse_result.scheme == 'http':
         install_args += ['--trusted-host', parse_result.netloc]
 
-    # Add mmcv-full find links by default.
+    # Add onedl-mmcv find links by default.
     install_args += ['-f', get_mmcv_full_find_link(mmcv_base_url)]
 
     index_url_opt_names = ['-i', '--index-url', '--pypi-url']
@@ -135,6 +188,10 @@ def install(
             'not specified in install_args via -i/--index-url/--pypi-url.')
     if index_url is not None:
         install_args += ['-i', index_url]
+
+    modified_install_args = modify_install_args(install_args)
+
+    install_args = modified_install_args
 
     patch_mm_distribution: Callable = patch_pkg_resources_distribution
     try:
@@ -154,7 +211,7 @@ def install(
 
 
 def get_mmcv_full_find_link(mmcv_base_url: str) -> str:
-    """Get the mmcv-full find link corresponding to the current environment.
+    """Get the onedl-mmcv find link corresponding to the current environment.
 
     Args:
         mmcv_base_url (str): The base URL of mmcv find link.
@@ -174,7 +231,7 @@ def get_mmcv_full_find_link(mmcv_base_url: str) -> str:
     else:
         device_link = 'cpu'
 
-    find_link = f'{mmcv_base_url}/mmcv/dist/{device_link}/torch{torch_v}/index.html'  # noqa: E501
+    find_link = f'{mmcv_base_url}/{device_link.replace(".", "")}-torch{torch_v.replace(".", "")}/simple/onedl-mmcv/index.html'  # noqa: E501
     return find_link
 
 
@@ -199,15 +256,26 @@ def patch_pkg_resources_distribution(
 
     def patched_requires(self, extras=()):
         deps = origin_requires(self, extras)
-        if self.project_name not in PKG2PROJECT or self.project_name == 'mmcv-full':  # noqa: E501
+        if self.project_name not in PKG2PROJECT or self.project_name == 'onedl-mmcv':  # noqa: E501
             return deps
 
         if 'mim' in self.extras:
             mim_extra_requires = origin_requires(self, ('mim', ))
             filter_invalid_marker(mim_extra_requires)
             deps += mim_extra_requires
+        elif 'mminstall' in self.extras:
+            mminstall_extra_requires = origin_requires(self, ('mminstall', ))
+            filter_invalid_marker(mminstall_extra_requires)
+            deps += mminstall_extra_requires
         else:
+            # Try to check if the package has mminstall extra available
             if not hasattr(self, '_mm_deps'):
+                # For modern packages, we should install with [mminstall] extra
+                # rather than trying to fetch mminstall.txt
+                echo_warning(
+                    f'Package {self.project_name} should be installed with '
+                    f'[mminstall] extra dependency group. '
+                    f'Try: pip install {self.project_name}[mminstall]')
                 assert self.version is not None
                 mmdeps_text = get_mmdeps_from_mmpkg(self.project_name,
                                                     self.version, index_url)
@@ -246,7 +314,7 @@ def patch_importlib_distribution(index_url: Optional[str] = None) -> Generator:
 
     def patched_iter_dependencies(self, extras=()):
         deps = list(origin_iter_dependencies(self, extras))
-        if self.canonical_name not in PKG2PROJECT or self.canonical_name == 'mmcv-full':  # noqa: E501
+        if self.canonical_name not in PKG2PROJECT or self.canonical_name == 'onedl-mmcv':  # noqa: E501
             return deps
 
         if 'mim' in self.iter_provided_extras():
@@ -254,8 +322,20 @@ def patch_importlib_distribution(index_url: Optional[str] = None) -> Generator:
                 origin_iter_dependencies(self, ('mim', )))
             filter_invalid_marker(mim_extra_requires)
             deps += mim_extra_requires
+        elif 'mminstall' in self.iter_provided_extras():
+            mminstall_extra_requires = list(
+                origin_iter_dependencies(self, ('mminstall', )))
+            filter_invalid_marker(mminstall_extra_requires)
+            deps += mminstall_extra_requires
         else:
+            # Try to check if the package has mminstall extra available
             if not hasattr(self, '_mm_deps'):
+                # For modern packages, we should install with [mminstall] extra
+                # rather than trying to fetch mminstall.txt
+                echo_warning(
+                    f'Package {self.canonical_name} should be installed with '
+                    f'[mminstall] extra dependency group. '
+                    f'Try: pip install {self.canonical_name}[mminstall]')
                 assert self.version is not None
                 mmdeps_text = get_mmdeps_from_mmpkg(self.canonical_name,
                                                     self.version, index_url)
@@ -378,13 +458,17 @@ def check_mim_resources() -> None:
     importlib.reload(pip._vendor.pkg_resources)
     for pkg in pip._vendor.pkg_resources.working_set:  # type: ignore
         pkg_name = pkg.project_name
-        if pkg_name not in PKG2PROJECT or pkg_name == 'mmcv-full':
+        if pkg_name not in PKG2PROJECT or pkg_name == 'onedl-mmcv':
             continue
         if pkg.has_metadata('top_level.txt'):
             module_name = pkg.get_metadata('top_level.txt').split('\n')[0]
-            installed_path = os.path.join(pkg.location, module_name)
+            installed_path = os.path.join(
+                pkg.location,  # type: ignore
+                module_name)
         else:
-            installed_path = os.path.join(pkg.location, pkg_name)
+            installed_path = os.path.join(
+                pkg.location,  # type: ignore
+                pkg_name)
         mim_resources_path = os.path.join(installed_path, '.mim')
         if not os.path.exists(mim_resources_path):
             echo_warning(f'mim resources not found: {mim_resources_path}, '

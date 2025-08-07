@@ -9,35 +9,36 @@ from mim.utils.utils import get_torch_device_version, is_npu_available
 
 def setup_module():
     runner = CliRunner()
-    result = runner.invoke(uninstall, ['mmcv-full', '--yes'])
-    assert result.exit_code == 0
-    result = runner.invoke(uninstall, ['mmcv', '--yes'])
-    assert result.exit_code == 0
-    result = runner.invoke(uninstall, ['mmcls', '--yes'])
-    assert result.exit_code == 0
+    result = runner.invoke(uninstall, ['onedl-mmcv', '--yes'])
+    assert result.exit_code == 0, result.output
+    result = runner.invoke(uninstall, ['onedl-mmpretrain', '--yes'])
+    assert result.exit_code == 0, result.output
 
 
 def test_parse_home_page():
     runner = CliRunner()
-    result = runner.invoke(install, ['mmcls', '--yes'])
-    assert result.exit_code == 0
+    result = runner.invoke(install, ['onedl-mmengine', '--yes'])
+    assert result.exit_code == 0, result.output
     assert parse_home_page(
-        'mmcls') == 'https://github.com/open-mmlab/mmclassification'
-    result = runner.invoke(uninstall, ['mmcls', '--yes'])
-    assert result.exit_code == 0
+        'onedl-mmengine'
+    ) == 'https://github.com/vbti-development/onedl-mmengine'
+    result = runner.invoke(uninstall, ['onedl-mmengine', '--yes'])
+    assert result.exit_code == 0, result.output
 
 
 def test_get_github_url():
     runner = CliRunner()
-    result = runner.invoke(install, ['mmcls', '--yes'])
-    assert result.exit_code == 0
+    result = runner.invoke(install, ['onedl-mmengine', '--yes'])
+    assert result.exit_code == 0, result.output
     assert get_github_url(
-        'mmcls') == 'https://github.com/open-mmlab/mmclassification.git'
+        'onedl-mmengine'
+    ) == 'https://github.com/vbti-development/onedl-mmengine.git'
 
-    result = runner.invoke(uninstall, ['mmcls', '--yes'])
-    assert result.exit_code == 0
+    result = runner.invoke(uninstall, ['onedl-mmengine', '--yes'])
+    assert result.exit_code == 0, result.output
     assert get_github_url(
-        'mmcls') == 'https://github.com/open-mmlab/mmclassification.git'
+        'onedl-mmengine'
+    ) == 'https://github.com/vbti-development/onedl-mmengine.git'
 
 
 def test_get_torch_device_version():
@@ -49,9 +50,7 @@ def test_get_torch_device_version():
 
 def teardown_module():
     runner = CliRunner()
-    result = runner.invoke(uninstall, ['mmcv-full', '--yes'])
-    assert result.exit_code == 0
-    result = runner.invoke(uninstall, ['mmcv', '--yes'])
-    assert result.exit_code == 0
-    result = runner.invoke(uninstall, ['mmcls', '--yes'])
-    assert result.exit_code == 0
+    result = runner.invoke(uninstall, ['onedl-mmcv', '--yes'])
+    assert result.exit_code == 0, result.output
+    result = runner.invoke(uninstall, ['onedl-mmpretrain', '--yes'])
+    assert result.exit_code == 0, result.output

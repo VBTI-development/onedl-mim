@@ -8,31 +8,26 @@ from mim.commands.uninstall import cli as uninstall
 
 def setup_module():
     runner = CliRunner()
-    result = runner.invoke(uninstall, ['mmcv-full', '--yes'])
-    assert result.exit_code == 0
-    result = runner.invoke(uninstall, ['mmcv', '--yes'])
-    assert result.exit_code == 0
-    result = runner.invoke(uninstall, ['mmcls', '--yes'])
-    assert result.exit_code == 0
+    result = runner.invoke(uninstall, ['onedl-mmcv', '--yes'])
+    assert result.exit_code == 0, result.output
+    result = runner.invoke(uninstall, ['onedl-mmpretrain', '--yes'])
+    assert result.exit_code == 0, result.output
 
 
 def test_list():
     runner = CliRunner()
-    # mim install mmcls==0.23.0 --yes
-    result = runner.invoke(install, ['mmcls==0.23.0', '--yes'])
-    assert result.exit_code == 0
+    # mim install onedl-mmpretrain==1.3.0rc0 --yes
+    result = runner.invoke(install, ['onedl-mmpretrain==1.3.0rc0', '--yes'])
+    assert result.exit_code == 0, result.output
     # mim list
-    target = ('mmcls', '0.23.0',
-              'https://github.com/open-mmlab/mmclassification')
+    target = ('onedl-mmpretrain', '1.3.0rc0')
     result = list_package()
     assert target in result
 
 
 def teardown_module():
     runner = CliRunner()
-    result = runner.invoke(uninstall, ['mmcv-full', '--yes'])
-    assert result.exit_code == 0
-    result = runner.invoke(uninstall, ['mmcv', '--yes'])
-    assert result.exit_code == 0
-    result = runner.invoke(uninstall, ['mmcls', '--yes'])
-    assert result.exit_code == 0
+    result = runner.invoke(uninstall, ['onedl-mmcv', '--yes'])
+    assert result.exit_code == 0, result.output
+    result = runner.invoke(uninstall, ['onedl-mmpretrain', '--yes'])
+    assert result.exit_code == 0, result.output

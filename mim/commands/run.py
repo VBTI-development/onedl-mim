@@ -43,23 +43,23 @@ def cli(package: str, command: str, yes: bool, other_args: tuple = ()) -> None:
 
     \b
     # Get the Flops of a model
-    > mim run mmcls get_flops resnet101_b16x8_cifar10.py
+    > mim run onedl-mmpretrain get_flops resnet101_b16x8_cifar10.py
     # Publish a model
-    > mim run mmcls publish_model input.pth output.pth
+    > mim run onedl-mmpretrain publish_model input.pth output.pth
     # Train models on a slurm HPC with one GPU
-    > srun -p partition --gres=gpu:1 mim run mmcls train \
+    > srun -p partition --gres=gpu:1 mim run onedl-mmpretrain train \
         resnet101_b16x8_cifar10.py --work-dir tmp
     # Test models on a slurm HPC with one GPU, report accuracy
-    > srun -p partition --gres=gpu:1 mim run mmcls test \
+    > srun -p partition --gres=gpu:1 mim run onedl-mmpretrain test \
         resnet101_b16x8_cifar10.py tmp/epoch_3.pth --metrics accuracy
     # Print help messages of sub-command run
     > mim run -h
     # Print help messages of sub-command run, list all available scripts in
-    # codebase mmcls
-    > mim run mmcls -h
+    # codebase onedl-mmpretrain
+    > mim run onedl-mmpretrain -h
     # Print help messages of sub-command run, print the help message of
-    # training script in mmcls
-    > mim run mmcls train -h
+    # training script in onedl-mmpretrain
+    > mim run onedl-mmpretrain train -h
     """
     is_success, msg = run(
         package=package, command=command, yes=yes, other_args=other_args)

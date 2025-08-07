@@ -60,12 +60,14 @@ def cli(package: str,
         dataset: Optional[str],
         dest_root: Optional[str] = None,
         check_certificate: bool = True) -> None:
-    """Download checkpoints from url and parse configs from package.
+    """Download checkpoints from url and parse configs from package (requires
+    onedl-mmengine).
 
     \b
     Example:
-        > mim download mmcls --config resnet18_8xb16_cifar10
-        > mim download mmcls --config resnet18_8xb16_cifar10 --dest .
+        > mim download onedl-mmpretrain --config resnet18_8xb16_cifar10
+        > mim download onedl-mmpretrain --config resnet18_8xb16_cifar10\
+             --dest .
     """
     download(package, configs, dest_root, check_certificate, dataset)
 
@@ -145,8 +147,8 @@ def _download_configs(package: str,
             from mmcv import Config
         except ImportError:
             raise ImportError(
-                'Please install mmengine to use the download command: '
-                '`mim install mmengine`.')
+                'Please install onedl-mmengine to use the download command: '
+                '`mim install onedl-mmengine`.')
 
     for config in configs:
         click.echo(f'processing {config}...')

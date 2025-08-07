@@ -93,41 +93,52 @@ def cli(package: str,
     Example:
 
     \b
-    # Parameter search on a single server with CPU by setting `gpus` to 0 and
-    # 'launcher' to 'none' (if applicable). The training script of the
+    # Parameter search on a single server with CPU by setting `gpus` to 0
+    # and 'launcher' to 'none' (if applicable). The training script of the
     # corresponding codebase will fail if it doesn't support CPU training.
-    > mim gridsearch mmcls resnet101_b16x8_cifar10.py --work-dir tmp --gpus \
-        0 --search-args '--optimizer.lr 1e-2 1e-3'
-    # Parameter search with on a single server with one GPU, search learning
-    # rate
-    > mim gridsearch mmcls resnet101_b16x8_cifar10.py --work-dir tmp --gpus \
-        1 --search-args '--optimizer.lr 1e-2 1e-3'
+    > mim gridsearch onedl-mmpretrain resnet101_b16x8_cifar10.py \
+        --work-dir tmp --gpus 0 --search-args '--optimizer.lr 1e-2 1e-3'
+
+    # Parameter search with on a single server with one GPU, search
+    # learning rate
+    > mim gridsearch onedl-mmpretrain resnet101_b16x8_cifar10.py \
+        --work-dir tmp --gpus 1 --search-args '--optimizer.lr 1e-2 1e-3'
+
     # Parameter search with on a single server with one GPU, search
     # weight_decay
-    > mim gridsearch mmcls resnet101_b16x8_cifar10.py --work-dir tmp --gpus \
-        1 --search-args '--optimizer.weight_decay 1e-3 1e-4'
-    # Parameter search with on a single server with one GPU, search learning
-    # rate and weight_decay
-    > mim gridsearch mmcls resnet101_b16x8_cifar10.py --work-dir tmp --gpus \
-        1 --search-args '--optimizer.lr 1e-2 1e-3 --optimizer.weight_decay \
-        1e-3 1e-4'
-    # Parameter search on a slurm HPC with one 8-GPU node, search learning
-    # rate and weight_decay
-    > mim gridsearch mmcls resnet101_b16x8_cifar10.py --work-dir tmp --gpus \
-        8 --partition partition_name --gpus-per-node 8 --launcher slurm \
-        --search-args '--optimizer.lr 1e-2 1e-3 --optimizer.weight_decay 1e-3 \
-        1e-4'
-    # Parameter search on a slurm HPC with one 8-GPU node, search learning
-    # rate and weight_decay, max parallel jobs is 2
-    > mim gridsearch mmcls resnet101_b16x8_cifar10.py --work-dir tmp --gpus \
-        8 --partition partition_name --gpus-per-node 8 --launcher slurm \
-        --max-jobs 2 --search-args '--optimizer.lr 1e-2 1e-3 \
+    > mim gridsearch onedl-mmpretrain resnet101_b16x8_cifar10.py \
+        --work-dir tmp --gpus 1 \
+        --search-args '--optimizer.weight_decay 1e-3 1e-4'
+
+    # Parameter search with on a single server with one GPU, search
+    # learning rate and weight_decay
+    > mim gridsearch onedl-mmpretrain resnet101_b16x8_cifar10.py \
+        --work-dir tmp --gpus 1 \
+        --search-args '--optimizer.lr 1e-2 1e-3 \
         --optimizer.weight_decay 1e-3 1e-4'
+
+    # Parameter search on a slurm HPC with one 8-GPU node, search
+    # learning rate and weight_decay
+    > mim gridsearch onedl-mmpretrain resnet101_b16x8_cifar10.py \
+        --work-dir tmp --gpus 8 --partition partition_name \
+        --gpus-per-node 8 --launcher slurm \
+        --search-args '--optimizer.lr 1e-2 1e-3 \
+        --optimizer.weight_decay 1e-3 1e-4'
+
+    # Parameter search on a slurm HPC with one 8-GPU node, search
+    # learning rate and weight_decay, max parallel jobs is 2
+    > mim gridsearch onedl-mmpretrain resnet101_b16x8_cifar10.py \
+        --work-dir tmp --gpus 8 --partition partition_name \
+        --gpus-per-node 8 --launcher slurm --max-jobs 2 \
+        --search-args '--optimizer.lr 1e-2 1e-3 \
+        --optimizer.weight_decay 1e-3 1e-4'
+
     # Print the help message of sub-command search
     > mim gridsearch -h
-    # Print the help message of sub-command search and the help message of the
-    # training script of codebase mmcls
-    > mim gridsearch mmcls -h
+
+    # Print the help message of sub-command search and the help message of
+    # the training script of codebase onedl-mmpretrain
+    > mim gridsearch onedl-mmpretrain -h
     """
 
     is_success, msg = gridsearch(
@@ -279,8 +290,8 @@ def gridsearch(
             from mmcv import Config
         except ImportError:
             raise ImportError(
-                'Please install mmengine to use the gridsearch command: '
-                '`mim install mmengine`.')
+                'Please install onedl-mmengine to use the gridsearch command: '
+                '`mim install onedl-mmengine`.')
 
     cfg = Config.fromfile(config)
     for arg in search_args_dict:
@@ -291,7 +302,8 @@ def gridsearch(
                     eval(x) for x in search_args_dict[arg]
                 ]
                 for val in search_args_dict[arg]:
-                    assert type(val) == type(arg_value)
+                    assert isinstance(
+                        val, type(arg_value))  # type(val) == type(arg_value)
         except AssertionError:
             msg = f'Arg {arg} not in the config file. '
             raise AssertionError(highlighted_error(msg))

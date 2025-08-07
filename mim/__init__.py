@@ -5,7 +5,7 @@
 # warnings that are caused by setuptools replacing distutils.
 # Related issues:
 # - https://github.com/pypa/setuptools/issues/3621
-# - https://github.com/open-mmlab/mmclassification/issues/1343
+# - https://github.com/vbti-development/onedl-mmpretrain/issues/1343
 try:
     import setuptools  # noqa: F401
     import warnings

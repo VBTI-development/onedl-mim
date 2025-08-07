@@ -101,19 +101,19 @@ def cli(packages: List[str],
 
     \b
     Example:
-        > mim search mmcls
-        > mim search mmcls==0.11.0 --remote
-        > mim search mmcls --valid-config
-        > mim search mmcls --config resnet18_b16x8_cifar10
-        > mim search mmcls --model resnet
-        > mim search mmcls --dataset cifar-10
-        > mim search mmcls --valid-filed
-        > mim search mmcls --condition 'batch_size>45,epochs>100'
-        > mim search mmcls --condition 'batch_size>45 epochs>100'
-        > mim search mmcls --condition '128<batch_size<=256'
-        > mim search mmcls --sort batch_size epochs
-        > mim search mmcls --field epochs batch_size weight
-        > mim search mmcls --exclude-field weight paper
+        > mim search onedl-mmpretrain
+        > mim search onedl-mmpretrain==0.11.0 --remote
+        > mim search onedl-mmpretrain --valid-config
+        > mim search onedl-mmpretrain --config resnet18_b16x8_cifar10
+        > mim search onedl-mmpretrain --model resnet
+        > mim search onedl-mmpretrain --dataset cifar-10
+        > mim search onedl-mmpretrain --valid-filed
+        > mim search onedl-mmpretrain --condition 'batch_size>45,epochs>100'
+        > mim search onedl-mmpretrain --condition 'batch_size>45 epochs>100'
+        > mim search onedl-mmpretrain --condition '128<batch_size<=256'
+        > mim search onedl-mmpretrain --sort batch_size epochs
+        > mim search onedl-mmpretrain --field epochs batch_size weight
+        > mim search onedl-mmpretrain --exclude-field weight paper
     """
     packages_info = {}
     for package in packages:
@@ -216,7 +216,7 @@ def load_metadata(package: str,
     if '=' in package and local:
         raise ValueError(
             highlighted_error(
-                'if package is set like "mmcls==0.11.0", the local '
+                'if package is set like "onedl-mmpretrain==0.11.0", the local '
                 'flag should be False.'))
 
     if local:
@@ -232,7 +232,7 @@ def load_metadata_from_local(package: str):
         package (str): Name of package to load metadata.
 
     Example:
-        >>> metadata = load_metadata_from_local('mmcls')
+        >>> metadata = load_metadata_from_local('onedl-mmpretrain')
     """
     if is_installed(package):
         # rename the model_zoo.yml to model-index.yml but support both of them
@@ -275,9 +275,9 @@ def load_metadata_from_remote(package: str,
 
     Example:
         >>> # load metadata from latest version
-        >>> metadata = load_metadata_from_remote('mmcls')
+        >>> metadata = load_metadata_from_remote('onedl-mmpretrain')
         >>> # load metadata from 0.11.0
-        >>> metadata = load_metadata_from_remote('mmcls==0.11.0')
+        >>> metadata = load_metadata_from_remote('onedl-mmpretrain==0.11.0')
     """
     if index_url is not None:
         click.echo(f'Loading metadata from PyPI ({index_url}) with '
@@ -386,7 +386,8 @@ def convert2df(metadata: ModelIndex) -> DataFrame:
             model_info.update(_parse(data))
 
         # Handle some corner cases.
-        # For example, pre-trained models in mmcls does not have results field.
+        # For example, pre-trained models in onedl-mmpretrain
+        # does not have results field.
         results = getattr(model, 'results', None)
         if results:
             for result in results:
@@ -585,7 +586,7 @@ def sort_by(dataframe: DataFrame,
     """Sort by the fields.
 
     When sorting output with some fields, substring is supported. For example,
-    if sorted_fields is ['epo'], the actual sorted fieds will be ['epochs'].
+    if sorted_fields is ['epo'], the actual sorted fields will be ['epochs'].
 
     Args:
         dataframe (DataFrame): Data to be sorted.
