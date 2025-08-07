@@ -54,7 +54,7 @@ jobs:
       - name: Install system dependencies
         run: |
           apt-get update
-          apt-get install -y libgl1 libglib2.0-0
+          apt-get install -y libgl1 libglib2.0-0 git
           apt-get clean -y
       - name: Install torch
         run: |

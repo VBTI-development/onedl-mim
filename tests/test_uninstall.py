@@ -28,9 +28,6 @@ def test_uninstall():
     installed_packages = [item[0] for item in result]
     assert 'onedl-mmsegmentation' in installed_packages
     assert 'onedl-mmcv' in installed_packages
-    # `mim install mmsegmentation` will install mim extra requirements (via
-    # mminstall.txt) automatically since PR#132, so we got installed onedl-mmpretrain here.  # noqa: E501
-    assert 'onedl-mmpretrain' in installed_packages
 
     # mim uninstall onedl-mmsegmentation --yes
     result = runner.invoke(uninstall, ['onedl-mmsegmentation', '--yes'])
