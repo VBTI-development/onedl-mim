@@ -19,6 +19,8 @@ concurrency:
 jobs:
   test_linux:
     runs-on: ubuntu-22.04
+    permissions:
+      pull-requests: write
     strategy:
       matrix:
         include:
@@ -69,9 +71,6 @@ jobs:
           python -m mim --help
       - name: Install test dependencies
         run: uv pip install -r pyproject.toml --group tests
-      - name: Show numpy config
-        run: |
-          python -c "import numpy; print(numpy.show_config())"
       - name: Run unit tests with coverage
         run: |
           set -e
