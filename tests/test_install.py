@@ -181,8 +181,10 @@ def test_extract_package_name_invalid(invalid_spec):
         # Test onedl-mmcv (should be excluded)
         (['onedl-mmcv'], ['onedl-mmcv']),
         # Test multiple packages
-        (['onedl-mmpretrain', 'numpy', 'onedl-mmdetection'],
-         ['onedl-mmpretrain[mminstall]', 'numpy', 'onedl-mmdetection[mminstall]']),
+        (['onedl-mmpretrain', 'numpy', 'onedl-mmdetection'], [
+            'onedl-mmpretrain[mminstall]', 'numpy',
+            'onedl-mmdetection[mminstall]'
+        ]),
         # Test with pip options/flags
         (['-r', 'requirements.txt', 'onedl-mmpretrain', '--upgrade'], [
             '-r', 'requirements.txt', 'onedl-mmpretrain[mminstall]',
@@ -199,11 +201,13 @@ def test_extract_package_name_invalid(invalid_spec):
         # Test only flags
         (['--upgrade', '-v'], ['--upgrade', '-v']),
         # Test mixed OpenMMLab and non-OpenMMLab packages with flags
-        (['-v', 'onedl-mmpretrain', 'torch', '--upgrade', 'onedl-mmdetection[dev]'
-          ], [
-              '-v', 'onedl-mmpretrain[mminstall]', 'torch', '--upgrade',
-              'onedl-mmdetection[dev,mminstall]'
-          ]),
+        ([
+            '-v', 'onedl-mmpretrain', 'torch', '--upgrade',
+            'onedl-mmdetection[dev]'
+        ], [
+            '-v', 'onedl-mmpretrain[mminstall]', 'torch', '--upgrade',
+            'onedl-mmdetection[dev,mminstall]'
+        ]),
         # Test package with multiple existing extras including mminstall
         (['onedl-mmpretrain[dev,mminstall]'
           ], ['onedl-mmpretrain[dev,mminstall]']),
