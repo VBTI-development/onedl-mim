@@ -4,7 +4,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "onedl-mim"
-version = "0.4.0-rc.0"
+version = "0.4.0rc1"
 description = "MIM Installs OpenMMLab packages"
 readme = "README.md"
 license = {text = "Apache-2.0"}
