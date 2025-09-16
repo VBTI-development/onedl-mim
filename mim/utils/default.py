@@ -10,7 +10,7 @@ DEFAULT_MMCV_BASE_URL = 'https://mmwheels.onedl.ai'
 RAW_GITHUB_URL = 'https://raw.githubusercontent.com/{owner}/{repo}/{branch}'
 
 OFFICIAL_MODULES = [
-    'onedl-mmpretrain', 'onedl-mmdet', 'mmdet3d', 'mmseg', 'mmaction2',
+    'onedl-mmpretrain', 'onedl-mmdetection', 'mmdet3d', 'mmseg', 'mmaction2',
     'mmtrack', 'mmpose', 'mmedit', 'mmocr', 'mmgen', 'mmselfsup', 'mmrotate',
     'mmflow', 'mmyolo', 'mmagic'
 ]
@@ -18,7 +18,7 @@ OFFICIAL_MODULES = [
 PKG2PROJECT = {
     'onedl-mmcv': 'mmcv',
     'onedl-mmpretrain': 'mmpretrain',
-    'onedl-mmdet': 'mmdetection',
+    'onedl-mmdetection': 'mmdetection',
     'mmdet3d': 'mmdetection3d',
     'onedl-mmsegmentation': 'mmsegmentation',
     'mmaction2': 'mmaction2',
