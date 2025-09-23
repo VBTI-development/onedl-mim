@@ -53,7 +53,7 @@ def cli(
     You can use `mim install` in the same way you use `pip install`!
 
     And `mim install` will **install the 'mim' extra requirements**
-    for OpenMMLab packages if needed.
+    for OneDL Lab packages if needed.
 
     \b
     Example:
@@ -99,7 +99,7 @@ def extract_package_name(package_spec: str) -> Sequence[Optional[str]]:
 
 
 def modify_install_args(install_args: List[str]) -> List[str]:
-    """Modify the install arguments to include [mminstall] extra for OpenMMLab
+    """Modify the install arguments to include [mminstall] extra for OneDL Lab
     packages."""
 
     modified_install_args = []
@@ -109,7 +109,7 @@ def modify_install_args(install_args: List[str]) -> List[str]:
             modified_install_args.append(arg)
             continue
 
-        # Check if this is an OpenMMLab package
+        # Check if this is an OneDL Lab package
         package_name, extras, version_spec = extract_package_name(arg)
         if package_name in PKG2PROJECT and package_name != 'onedl-mmcv':
             if extras is None:
@@ -132,7 +132,7 @@ def install(
     index_url: Optional[str] = None,
     is_yes: bool = False,
 ) -> Any:
-    """Install packages via pip and add 'mim' extra requirements for OpenMMLab
+    """Install packages via pip and add 'mim' extra requirements for OneDL Lab
     packages during pip install process.
 
     Args:
@@ -240,7 +240,7 @@ def patch_pkg_resources_distribution(
         index_url: Optional[str] = None) -> Generator:
     """A patch for `pip._vendor.pkg_resources.Distribution`.
 
-    Since the old version of the OpenMMLab packages did not add the 'mim' extra
+    Since the old version of the OneDL Lab packages did not add the 'mim' extra
     requirements to the release distribution, we need to hack the Distribution
     and manually fetch the 'mim' requirements from `mminstall.txt`.
 
@@ -297,7 +297,7 @@ def patch_pkg_resources_distribution(
 def patch_importlib_distribution(index_url: Optional[str] = None) -> Generator:
     """A patch for `pip._internal.metadata.importlib.Distribution`.
 
-    Since the old version of the OpenMMLab packages did not add the 'mim' extra
+    Since the old version of the OneDL Lab packages did not add the 'mim' extra
     requirements to the release distribution, we need to hack the Distribution
     and manually fetch the 'mim' requirements from `mminstall.txt`.
 
@@ -373,15 +373,15 @@ def filter_invalid_marker(extra_requires: List) -> None:
 def get_mmdeps_from_mmpkg(mmpkg_name: str,
                           mmpkg_version: str,
                           index_url: Optional[str] = None) -> str:
-    """Get 'mim' extra requirements for a given OpenMMLab package from
+    """Get 'mim' extra requirements for a given OneDL Lab package from
     `mminstall.txt`.
 
     If there is a cached `mminstall.txt`, use the cache, otherwise download the
     source distribution package from pypi and extract `mminstall.txt` content.
 
     Args:
-        mmpkg_name (str): The OpenMMLab package name.
-        mmpkg_version (str): The OpenMMLab package version.
+        mmpkg_name (str): The OneDL Lab package name.
+        mmpkg_version (str): The OneDL Lab package version.
         index_url (str, optional): The pypi index url that pass to
             `get_mminstall_from_pypi`.
 
@@ -412,10 +412,10 @@ def get_mmdeps_from_mmpkg(mmpkg_name: str,
 @typing.no_type_check
 def get_mminstall_from_pypi(mmpkg: str,
                             index_url: Optional[str] = None) -> str:
-    """Get the `mminstall.txt` content for a given OpenMMLab package from PyPi.
+    """Get the `mminstall.txt` content for a given OneDL Lab package from PyPi.
 
     Args:
-        mmpkg (str): The OpenMMLab package name, optionally with a version
+        mmpkg (str): The OneDL Lab package name, optionally with a version
             specifier. e.g. 'mmdet', 'mmdet==2.25.0'.
         index_url (str, optional): The pypi index url, if given, will be used
             in `pip download`.
@@ -449,7 +449,7 @@ def get_mminstall_from_pypi(mmpkg: str,
 def check_mim_resources() -> None:
     """Check if the mim resource directory exists.
 
-    Newer versions of the OpenMMLab packages have packaged the mim resource
+    Newer versions of the OneDL Lab packages have packaged the mim resource
     files into the distribution package, while earlier versions do not.
 
     If the mim resources file (aka `.mim`) do not exists, log a warning that a

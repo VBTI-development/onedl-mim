@@ -85,9 +85,9 @@ class MIM(click.MultiCommand):
     show_default=True)
 @click.version_option(version=__version__)
 def cli():
-    """OpenMMLab Command Line Interface.
+    """OneDL Lab Command Line Interface.
 
-    MIM provides a unified API for launching and installing OpenMMLab projects
-    and their extensions, and managing the OpenMMLab model zoo.
+    MIM provides a unified API for launching and installing OneDL Lab projects
+    and their extensions, and managing the OneDL Lab model zoo.
     """
     pass
