@@ -28,7 +28,7 @@ def configure(ctx, param, filename):
         defaults.update(cfg[sect])
 
 
-class MIM(click.MultiCommand):
+class MIM(click.Group):
 
     def list_commands(self, ctx):
         rv = []

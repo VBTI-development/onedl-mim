@@ -77,7 +77,7 @@ class CustomCommand(click.Command):
                 return
 
             if repo not in repos:
-                exit_with_error(f'{repo} is not an OpenMMLAB codebase. ')
+                exit_with_error(f'{repo} is not an OneDL Lab codebase. ')
 
             if repo in repos and not is_installed(repo):
                 exit_with_error(f'Codebase {repo} in not installed. ')
