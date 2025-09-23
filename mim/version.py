@@ -1,4 +1,3 @@
 # Copyright (c) OpenMMLab. All rights reserved.
-from importlib.metadata import version
 
-__version__ = version('onedl-mim')
+__version__ = '0.4.0rc2'

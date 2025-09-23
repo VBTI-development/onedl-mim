@@ -13,7 +13,7 @@ from mim.utils.utils import get_installed_path
 @click.option(
     '--all',
     is_flag=True,
-    help='List packages of OpenMMLab projects or all the packages in the '
+    help='List packages of OneDL Lab projects or all the packages in the '
     'python environment.')
 def cli(all: bool = True) -> None:
     """List packages.
@@ -31,7 +31,7 @@ def cli(all: bool = True) -> None:
 def list_package(all: bool = False) -> List[Tuple[str, ...]]:
     """List packages.
 
-    List packages of OpenMMLab projects or all the packages in the python
+    List packages of OneDL Lab projects or all the packages in the python
     environment.
 
     Args:

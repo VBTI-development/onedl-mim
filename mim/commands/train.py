@@ -239,7 +239,7 @@ def train(
         cmd = [PYTHON, train_script, config] + common_args
         help_msg = subprocess.check_output([PYTHON, train_script, '-h'])
         if '--gpus' in help_msg.decode():
-            # OpenMMLab 1.0 should add the `--gpus` or `--device` flags.
+            # OneDL Lab 1.0 should add the `--gpus` or `--device` flags.
             if gpus:
                 cmd += ['--gpus', str(gpus)]
             else:

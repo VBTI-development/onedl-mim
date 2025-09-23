@@ -219,7 +219,7 @@ def _download_dataset(package: str, dataset: str, dest_root: str) -> None:
                        'here are the available datasets: '
                        '{}'.format('\n'.join(dataset_metas.keys())))
     dataset_meta = dataset_metas[dataset]
-    # OpenMMLab repo will define the `dataset-index.yml` like this:
+    # OneDL Lab repo will define the `dataset-index.yml` like this:
     # openxlab: true
     # voc2007:
     #     dataset: PASCAL_VOC2007

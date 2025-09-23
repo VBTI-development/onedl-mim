@@ -1,17 +1,17 @@
 [build-system]
-requires = ["setuptools>=45", "wheel", "setuptools_scm[toml]>=6.2"]
+requires = ["setuptools>=45", "wheel"]
 build-backend = "setuptools.build_meta"
 
 [project]
 name = "onedl-mim"
-version = "0.4.0rc1"
-description = "MIM Installs OpenMMLab packages"
+dynamic = ["version"]
+description = "MIM Installs OneDL lab packages"
 readme = "README.md"
 license = {text = "Apache-2.0"}
 authors = [
-    { name = "MMDetection Contributors", email = "oss-team@vbti.nl" }
+    { name = "OneDL-Mim Contributors", email = "oss-team@vbti.nl" }
 ]
-keywords = ["computer vision", "deep learning", "pytorch", "openmmlab"]
+keywords = ["computer vision", "deep learning", "pytorch", "onedl"]
 classifiers = [
     "Development Status :: 4 - Beta",
     "Operating System :: OS Independent",
@@ -65,8 +65,12 @@ Documentation = "https://onedl-openmim.readthedocs.io"
 mim = "mim.cli:cli"
 
 [tool.setuptools]
-packages = ["mim"]
 include-package-data = true
+
+[tool.setuptools.packages.find]
+
+[tool.setuptools.dynamic]
+version = {attr = "mim.version.__version__"}
 
 [tool.setuptools.package-data]
 "*" = ["*.txt", "*.md", "*.rst"]

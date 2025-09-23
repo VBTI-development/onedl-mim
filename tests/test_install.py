@@ -162,21 +162,21 @@ def test_extract_package_name_invalid(invalid_spec):
 @pytest.mark.parametrize(
     'input_args,expected_output',
     [
-        # Test simple OpenMMLab package
+        # Test simple OneDL Lab package
         (['onedl-mmpretrain'], ['onedl-mmpretrain[mminstall]']),
-        # Test OpenMMLab package with version specifier
+        # Test OneDL Lab package with version specifier
         (['onedl-mmpretrain>=1.0.0'], ['onedl-mmpretrain[mminstall]>=1.0.0']),
-        # Test OpenMMLab package with existing extras
+        # Test OneDL Lab package with existing extras
         (['onedl-mmpretrain[dev]'], ['onedl-mmpretrain[dev,mminstall]']),
-        # Test OpenMMLab package with existing extras and version
+        # Test OneDL Lab package with existing extras and version
         (['onedl-mmpretrain[dev]>=1.0.0'
           ], ['onedl-mmpretrain[dev,mminstall]>=1.0.0']),
-        # Test OpenMMLab package that already has mminstall extra
+        # Test OneDL Lab package that already has mminstall extra
         (['onedl-mmpretrain[mminstall]'], ['onedl-mmpretrain[mminstall]']),
-        # Test OpenMMLab package with mminstall and other extras
+        # Test OneDL Lab package with mminstall and other extras
         (['onedl-mmpretrain[dev,mminstall,test]'
           ], ['onedl-mmpretrain[dev,mminstall,test]']),
-        # Test non-OpenMMLab package
+        # Test non-OneDL Lab package
         (['numpy'], ['numpy']),
         # Test onedl-mmcv (should be excluded)
         (['onedl-mmcv'], ['onedl-mmcv']),
@@ -200,7 +200,7 @@ def test_extract_package_name_invalid(invalid_spec):
         ([], []),
         # Test only flags
         (['--upgrade', '-v'], ['--upgrade', '-v']),
-        # Test mixed OpenMMLab and non-OpenMMLab packages with flags
+        # Test mixed OneDL Lab and non-OneDL Lab packages with flags
         ([
             '-v', 'onedl-mmpretrain', 'torch', '--upgrade',
             'onedl-mmdetection[dev]'
@@ -211,7 +211,7 @@ def test_extract_package_name_invalid(invalid_spec):
         # Test package with multiple existing extras including mminstall
         (['onedl-mmpretrain[dev,mminstall]'
           ], ['onedl-mmpretrain[dev,mminstall]']),
-        # Test different OpenMMLab packages
+        # Test different OneDL Lab packages
         (['onedl-mmdetection'], ['onedl-mmdetection[mminstall]']),
         (['onedl-mmsegmentation'], ['onedl-mmsegmentation[mminstall]']),
         # Test packages with exact version

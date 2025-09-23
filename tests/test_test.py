@@ -1,6 +1,4 @@
 # Copyright (c) OpenMMLab. All rights reserved.
-import pytest
-import torch
 from click.testing import CliRunner
 
 from mim.commands.install import cli as install
@@ -16,14 +14,7 @@ def setup_module():
     assert result.exit_code == 0, result.output
 
 
-@pytest.mark.parametrize('device', [
-    'cpu',
-    pytest.param(
-        'cuda',
-        marks=pytest.mark.skipif(
-            not torch.cuda.is_available(), reason='requires CUDA support')),
-])
-def test_test(device):
+def test_test():
     runner = CliRunner()
     result = runner.invoke(install, ['onedl-mmpretrain>=1.0.0rc0', '--yes'])
     assert result.exit_code == 0, result.output
