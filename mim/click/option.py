@@ -1,4 +1,5 @@
 # Copyright (c) OpenMMLab. All rights reserved.
+
 import click
 
 
@@ -54,6 +55,6 @@ class OptionEatAll(click.Option):
         `type_cast_value` method to prevent the return value of OptionEatAll
         converted from a tuple to a string.
         """
-        if value is None:
+        if value is None or value == click._utils.Sentinel.UNSET:
             return () if self.multiple or self.nargs == -1 else None
         return tuple(self.type(x, self, ctx) for x in value)
