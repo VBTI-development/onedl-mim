@@ -35,6 +35,7 @@ dependencies = [
     "tabulate",
     "numpy<2",
     "packaging",
+    "setuptools>=80.0",
 ]
 
 [dependency-groups]
