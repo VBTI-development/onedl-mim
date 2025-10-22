@@ -1,6 +1,20 @@
 # Copyright (c) 22-10-2025 VBTI Products BV.
 # Copyright (c) OpenMMLab. All rights reserved.
 
+# NOTE: We could got AssertionError when importing pip before
+# setuptools. A workaround is to import setuptools first and filter
+# warnings that are caused by setuptools replacing distutils.
+# Related issues:
+# - https://github.com/pypa/setuptools/issues/3621
+# - https://github.com/vbti-development/onedl-mmpretrain/issues/1343
+try:
+    import setuptools  # noqa: F401
+    import warnings
+    warnings.filterwarnings('ignore', 'Setuptools is replacing distutils')
+except (ImportError, AttributeError):
+    # python 3.12 introduces AttributeError.
+    pass
+
 from .commands import (
     download,
     get_model_info,
