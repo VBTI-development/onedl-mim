@@ -28,12 +28,11 @@ dependencies = [
     "colorama",
     "model-index",
     "opendatalab",
-    "pandas",
+    "pandas==2.2.3", # fix pandas to work with both numpy 1 and numpy 2
     "pip>=19.3",
     "requests",
     "rich",
     "tabulate",
-    "numpy>2",
     "packaging",
     "setuptools>=80.0",
 ]
