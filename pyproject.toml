@@ -4,7 +4,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "onedl-mim"
-dynamic = ["version"]
+version="0.4.1rc0"
 description = "MIM Installs OneDL lab packages"
 readme = "README.md"
 license = {text = "Apache-2.0"}
@@ -71,9 +71,6 @@ mim = "mim.cli:cli"
 include-package-data = true
 
 [tool.setuptools.packages.find]
-
-[tool.setuptools.dynamic]
-version = {attr = "mim.version.__version__"}
 
 [tool.setuptools.package-data]
 "*" = ["*.txt", "*.md", "*.rst"]

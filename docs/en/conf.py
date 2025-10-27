@@ -12,6 +12,7 @@
 #
 import os
 import sys
+from importlib.metadata import version as _version
 
 # The theme to use for HTML and HTML Help pages.  See the documentation for
 # a list of builtin themes.
@@ -25,13 +26,10 @@ sys.path.insert(0, os.path.abspath('../..'))
 project = 'OneDL MIM'
 copyright = '2025, VBTI'
 author = 'OneDL MIM Authors'
-version_file = '../../mim/version.py'
 
 
 def get_version():
-    with open(version_file) as f:
-        exec(compile(f.read(), version_file, 'exec'))
-    return locals()['__version__']
+    return _version('onedl-mim')
 
 
 # The full version, including alpha/beta/rc tags
