@@ -33,7 +33,7 @@ dependencies = [
     "requests",
     "rich",
     "tabulate",
-    "numpy<2",
+    "numpy>2",
     "packaging",
     "setuptools>=80.0",
 ]
