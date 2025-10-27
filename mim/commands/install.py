@@ -173,15 +173,7 @@ def install(
 
     install_args = modified_install_args
 
-    # patch_mm_distribution: Callable = patch_pkg_resources_distribution
-    try:
-        # pip>=22.1 have two distribution backends: pkg_resources and importlib.  # noqa: E501
-        from pip._internal.metadata import _should_use_importlib_metadata  # type: ignore # isort: skip # noqa: E501
-        if _should_use_importlib_metadata():
-            patch_mm_distribution = patch_importlib_distribution
-    except ImportError:
-        pass
-
+    patch_mm_distribution = patch_importlib_distribution
     with patch_mm_distribution(index_url):
         # We can use `create_command` method since pip>=19.3 (2019/10/14).
         status_code = create_command('install').main(install_args)

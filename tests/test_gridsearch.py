@@ -26,7 +26,6 @@ def setup_module():
         marks=pytest.mark.skipif(
             not torch.cuda.is_available(), reason='requires CUDA support')),
 ])
-@pytest.mark.skip()
 def test_gridsearch(gpus, tmp_path):
     runner = CliRunner()
     result = runner.invoke(install, ['onedl-mmpretrain>=1.0.0rc0', '--yes'])
