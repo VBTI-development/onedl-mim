@@ -1,16 +1,15 @@
 # Copyright (c) OpenMMLab. All rights reserved.
-import importlib
 import os
 import re
 import tarfile
 import tempfile
 import typing
 from contextlib import contextmanager
-from typing import Any, Callable, Generator, List, Optional, Sequence, Tuple
+from importlib import metadata as importlib_metadata
+from typing import Any, Generator, List, Optional, Sequence, Tuple
 from urllib.parse import urlparse
 
 import click
-from importlib import metadata as importlib_metadata
 from pip._internal.commands import create_command
 
 from mim.utils import (
@@ -231,7 +230,6 @@ def patch_importlib_distribution(index_url: Optional[str] = None) -> Generator:
             `get_mminstall_from_pypi`.
     """
     from pip._internal.metadata.importlib import Distribution
-    from pip._internal.metadata.importlib._dists import Requirement
 
     origin_iter_dependencies = Distribution.iter_dependencies
 
@@ -375,27 +373,20 @@ def check_mim_resources() -> None:
         pkg_name = dist.metadata['Name']
         if pkg_name not in PKG2PROJECT or pkg_name == 'onedl-mmcv':
             continue
-        
+
         try:
             # Try to get top-level packages
             top_level = dist.read_text('top_level.txt')
             if top_level:
                 module_name = top_level.split('\n')[0].strip()
                 installed_path = os.path.join(
-                    str(dist.locate_file('.')), 
-                    module_name
-                )
+                    str(dist.locate_file('.')), module_name)
             else:
                 installed_path = os.path.join(
-                    str(dist.locate_file('.')), 
-                    pkg_name
-                )
+                    str(dist.locate_file('.')), pkg_name)
         except FileNotFoundError:
-            installed_path = os.path.join(
-                str(dist.locate_file('.')), 
-                pkg_name
-            )
-        
+            installed_path = os.path.join(str(dist.locate_file('.')), pkg_name)
+
         mim_resources_path = os.path.join(installed_path, '.mim')
         if not os.path.exists(mim_resources_path):
             echo_warning(f'mim resources not found: {mim_resources_path}, '

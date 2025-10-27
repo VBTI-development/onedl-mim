@@ -9,15 +9,13 @@ import subprocess
 import tarfile
 import typing
 from collections import defaultdict
-from email.parser import FeedParser
-from importlib.metadata import Distribution
 from importlib import metadata as importlib_metadata
-from packaging import version as packaging_version
 from typing import Any, List, Optional, Sequence, Tuple, Union
 from urllib.parse import unquote, urlparse
 
 import click
 import requests
+from packaging import version as packaging_version
 from pip._vendor.packaging import version
 from requests.exceptions import InvalidURL, RequestException, Timeout
 from requests.models import Response
@@ -316,7 +314,7 @@ def package2module(package: str):
             return top_level.split('\n')[0].strip()
     except (importlib_metadata.PackageNotFoundError, FileNotFoundError):
         pass
-    
+
     raise ValueError(
         highlighted_error(f'can not infer the module name of {package}'))
 
@@ -333,25 +331,28 @@ def get_installed_path(package: str) -> str:
         >>> '.../lib/python3.10/site-packages/onedl-mmpretrain'
     """
     dist = importlib_metadata.distribution(package)
-    
+
     # Try to read direct_url.json for editable installs
     try:
         direct_url_text = dist.read_text('direct_url.json')
         if direct_url_text:
             direct_url_dict: dict = json.loads(direct_url_text)
-            pkg_is_editable = direct_url_dict.get('dir_info', {}).get('editable', False)
-            
+            pkg_is_editable = direct_url_dict.get('dir_info',
+                                                  {}).get('editable', False)
+
             if pkg_is_editable:
                 possible_path = direct_url_dict.get('url', '')
                 return osp.normpath(unquote(urlparse(possible_path).path))
     except FileNotFoundError:
         pass
-    
+
     # Get the location from files
     if dist.files:
         # Get the first file's parent directory
         first_file = str(dist.files[0])
-        possible_path = osp.join(dist.locate_file('.'), first_file.split('/')[0])
+        possible_path = osp.join(
+            dist.locate_file('.'),
+            first_file.split('/')[0])
     else:
         # Fallback: construct path
         site_packages = str(dist.locate_file('.'))

@@ -93,7 +93,7 @@ def _postprocess_registry_locations(export_root_dir: str):
                                         '.', osp.sep)):
                                 print_log(
                                     '[ Pass ] Remove Registry.locations '
-                                    f"'{osp.join(export_root_dir, path).replace('.',osp.sep)}', "  # noqa: E501
+                                    f"'{osp.join(export_root_dir, path).replace('.', osp.sep)}', "  # noqa: E501
                                     'which is no need to export.',
                                     logger='export',
                                     level=logging.DEBUG)
