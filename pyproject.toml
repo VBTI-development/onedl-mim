@@ -24,7 +24,7 @@ classifiers = [
 ]
 requires-python = ">=3.10"
 dependencies = [
-    "Click",
+    "Click>=8.3",
     "colorama",
     "model-index",
     "opendatalab",

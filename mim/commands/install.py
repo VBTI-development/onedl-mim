@@ -10,7 +10,7 @@ from typing import Any, Callable, Generator, List, Optional, Sequence, Tuple
 from urllib.parse import urlparse
 
 import click
-import pip._vendor.pkg_resources
+from importlib import metadata as importlib_metadata
 from pip._internal.commands import create_command
 
 from mim.utils import (
@@ -142,25 +142,6 @@ def install(
             interface compatibility only.
     """
 
-    # Reload `pip._vendor.pkg_resources` so that pip can refresh to get the
-    # latest working set in the same process.
-    # In some cases, when a package is uninstalled and then installed, the
-    # working set is not updated in time, leading to the mistaken belief that
-    # the package is already installed.
-    #
-    # NOTE: Some unpredictable bugs could occurs with `importlib.reload`.
-    # A known issues in pip < 22.0: `METADATA not found in /tmp/xxx/xxx.whel`
-    # >>> import pip._vendor.pkg_resources
-    # >>> import importlib
-    # >>> a = pip._vendor.pkg_resources.DistInfoDistribution()
-    # >>> type(a) is pip._vendor.pkg_resources.DistInfoDistribution
-    # True
-    # >>> importlib.reload(pip._vendor.pkg_resources)
-    # <module 'pip._vendor.pkg_resources' from '...'>
-    # >>> type(a) is pip._vendor.pkg_resources.DistInfoDistribution
-    # False  # This will cause some problems!!!
-    importlib.reload(pip._vendor.pkg_resources)
-
     # Get mmcv_base_url from environment variable if exists.
     mmcv_base_url = os.environ.get('MMCV_BASE_URL', None)
     if mmcv_base_url is not None:
@@ -193,7 +174,7 @@ def install(
 
     install_args = modified_install_args
 
-    patch_mm_distribution: Callable = patch_pkg_resources_distribution
+    # patch_mm_distribution: Callable = patch_pkg_resources_distribution
     try:
         # pip>=22.1 have two distribution backends: pkg_resources and importlib.  # noqa: E501
         from pip._internal.metadata import _should_use_importlib_metadata  # type: ignore # isort: skip # noqa: E501
@@ -236,64 +217,6 @@ def get_mmcv_full_find_link(mmcv_base_url: str) -> str:
 
 
 @contextmanager
-def patch_pkg_resources_distribution(
-        index_url: Optional[str] = None) -> Generator:
-    """A patch for `pip._vendor.pkg_resources.Distribution`.
-
-    Since the old version of the OneDL Lab packages did not add the 'mim' extra
-    requirements to the release distribution, we need to hack the Distribution
-    and manually fetch the 'mim' requirements from `mminstall.txt`.
-
-    This patch works with 'pip<22.1' and 'pip>=22.1,python<3.11'.
-
-    Args:
-        index_url (str, optional): The pypi index url that pass to
-            `get_mmdeps_from_mmpkg_pypi`.
-    """
-    from pip._vendor.pkg_resources import Distribution, parse_requirements
-
-    origin_requires = Distribution.requires
-
-    def patched_requires(self, extras=()):
-        deps = origin_requires(self, extras)
-        if self.project_name not in PKG2PROJECT or self.project_name == 'onedl-mmcv':  # noqa: E501
-            return deps
-
-        if 'mim' in self.extras:
-            mim_extra_requires = origin_requires(self, ('mim', ))
-            filter_invalid_marker(mim_extra_requires)
-            deps += mim_extra_requires
-        elif 'mminstall' in self.extras:
-            mminstall_extra_requires = origin_requires(self, ('mminstall', ))
-            filter_invalid_marker(mminstall_extra_requires)
-            deps += mminstall_extra_requires
-        else:
-            # Try to check if the package has mminstall extra available
-            if not hasattr(self, '_mm_deps'):
-                # For modern packages, we should install with [mminstall] extra
-                # rather than trying to fetch mminstall.txt
-                echo_warning(
-                    f'Package {self.project_name} should be installed with '
-                    f'[mminstall] extra dependency group. '
-                    f'Try: pip install {self.project_name}[mminstall]')
-                assert self.version is not None
-                mmdeps_text = get_mmdeps_from_mmpkg(self.project_name,
-                                                    self.version, index_url)
-                self._mm_deps = list(parse_requirements(mmdeps_text))
-                echo_warning(
-                    "Get 'mim' extra requirements from `mminstall.txt` "
-                    f'for {self}: {[str(i) for i in self._mm_deps]}.')
-            deps += self._mm_deps
-        return deps
-
-    Distribution.requires = patched_requires  # type: ignore
-    try:
-        yield
-    finally:
-        Distribution.requires = origin_requires  # type: ignore
-
-
-@contextmanager
 def patch_importlib_distribution(index_url: Optional[str] = None) -> Generator:
     """A patch for `pip._internal.metadata.importlib.Distribution`.
 
@@ -328,21 +251,14 @@ def patch_importlib_distribution(index_url: Optional[str] = None) -> Generator:
             filter_invalid_marker(mminstall_extra_requires)
             deps += mminstall_extra_requires
         else:
-            # Try to check if the package has mminstall extra available
-            if not hasattr(self, '_mm_deps'):
-                # For modern packages, we should install with [mminstall] extra
-                # rather than trying to fetch mminstall.txt
-                echo_warning(
-                    f'Package {self.canonical_name} should be installed with '
-                    f'[mminstall] extra dependency group. '
-                    f'Try: pip install {self.canonical_name}[mminstall]')
-                assert self.version is not None
-                mmdeps_text = get_mmdeps_from_mmpkg(self.canonical_name,
-                                                    self.version, index_url)
-                self._mm_deps = [
-                    Requirement(req) for req in mmdeps_text.splitlines()
-                ]
-            deps += self._mm_deps
+            # For modern packages, we should install with [mminstall] extra
+            # rather than trying to fetch mminstall.txt
+            echo_warning(
+                f'Package {self.canonical_name} should be installed with '
+                f'[mminstall] extra dependency group. '
+                f'Try: pip install {self.canonical_name}[mminstall]')
+            # Return empty deps since we can't fetch mminstall.txt reliably
+            # The user should reinstall with the proper [mminstall] extra
         return deps
 
     Distribution.iter_dependencies = patched_iter_dependencies  # type: ignore
@@ -455,20 +371,31 @@ def check_mim_resources() -> None:
     If the mim resources file (aka `.mim`) do not exists, log a warning that a
     new version needs to be installed.
     """
-    importlib.reload(pip._vendor.pkg_resources)
-    for pkg in pip._vendor.pkg_resources.working_set:  # type: ignore
-        pkg_name = pkg.project_name
+    for dist in importlib_metadata.distributions():
+        pkg_name = dist.metadata['Name']
         if pkg_name not in PKG2PROJECT or pkg_name == 'onedl-mmcv':
             continue
-        if pkg.has_metadata('top_level.txt'):
-            module_name = pkg.get_metadata('top_level.txt').split('\n')[0]
+        
+        try:
+            # Try to get top-level packages
+            top_level = dist.read_text('top_level.txt')
+            if top_level:
+                module_name = top_level.split('\n')[0].strip()
+                installed_path = os.path.join(
+                    str(dist.locate_file('.')), 
+                    module_name
+                )
+            else:
+                installed_path = os.path.join(
+                    str(dist.locate_file('.')), 
+                    pkg_name
+                )
+        except FileNotFoundError:
             installed_path = os.path.join(
-                pkg.location,  # type: ignore
-                module_name)
-        else:
-            installed_path = os.path.join(
-                pkg.location,  # type: ignore
-                pkg_name)
+                str(dist.locate_file('.')), 
+                pkg_name
+            )
+        
         mim_resources_path = os.path.join(installed_path, '.mim')
         if not os.path.exists(mim_resources_path):
             echo_warning(f'mim resources not found: {mim_resources_path}, '
