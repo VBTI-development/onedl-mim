@@ -1,21 +1,16 @@
 # Copyright (c) OpenMMLab. All rights reserved.
 import os
-import re
-import tarfile
-import tempfile
-import typing
-from contextlib import contextmanager
+import sys
 from importlib import metadata as importlib_metadata
-from typing import Any, Generator, List, Optional, Sequence, Tuple
+from typing import Any, List, Optional, Sequence, Tuple
 from urllib.parse import urlparse
 
 import click
-from pip._internal.commands import create_command
 
 from mim.utils import (
-    DEFAULT_CACHE_DIR,
     DEFAULT_MMCV_BASE_URL,
     PKG2PROJECT,
+    call_command,
     echo_warning,
     get_torch_device_version,
 )
@@ -69,129 +64,118 @@ def cli(
     if is_yes:
         echo_warning(
             'The `--yes` option has been deprecated, will have no effect.')
-    exit_code = install(list(args), index_url=index_url, is_yes=is_yes)
+    exit_code = install(list(args), index_url=index_url)
     exit(exit_code)
-
-
-def extract_package_name(package_spec: str) -> Sequence[Optional[str]]:
-    """Extract the base package name from a pip package specification.
-
-    Examples:
-        onedl-mmpretrain -> onedl-mmpretrain
-        onedl-mmpretrain[mminstall] -> onedl-mmpretrain
-        onedl-mmpretrain[mminstall]>=1.0.0rc0 -> onedl-mmpretrain
-        onedl-mmpretrain>=1.0.0,<2.0.0 -> onedl-mmpretrain
-    """
-    # Pattern to match package name before any extras or version specifiers
-    package_name_pattern = r'([a-zA-Z0-9](?:[a-zA-Z0-9._-]*[a-zA-Z0-9])?)'
-    extras_pattern = r'(?:\[([a-zA-Z0-9,._-]+)\])?'
-    version_spec_pattern = (r'((?:[<>=!~]+[a-zA-Z0-9.]+(?:[a-zA-Z]+[0-9]*)?'
-                            r'(?:\.[a-zA-Z0-9]+)*,?)*)')
-
-    full_pattern = (fr'^{package_name_pattern}{extras_pattern}'
-                    fr'{version_spec_pattern}$')
-    match = re.match(full_pattern, package_spec.strip())
-    if match:
-        return match.groups()
-
-    return package_spec, None, ''
-
-
-def modify_install_args(install_args: List[str]) -> List[str]:
-    """Modify the install arguments to include [mminstall] extra for OneDL Lab
-    packages."""
-
-    modified_install_args = []
-    for arg in install_args:
-        # Skip option flags
-        if arg.startswith('-'):
-            modified_install_args.append(arg)
-            continue
-
-        # Check if this is an OneDL Lab package
-        package_name, extras, version_spec = extract_package_name(arg)
-        if package_name in PKG2PROJECT and package_name != 'onedl-mmcv':
-            if extras is None:
-                extras = ''
-            # Add [mminstall] extra if not already present
-            if 'mminstall' not in extras:
-                if extras:
-                    extras += ','
-                extras += 'mminstall'
-            modified_arg = f'{package_name}[{extras}]{version_spec}'
-            modified_install_args.append(modified_arg)
-        else:
-            modified_install_args.append(arg)
-
-    return modified_install_args
 
 
 def install(
     install_args: List[str],
     index_url: Optional[str] = None,
-    is_yes: bool = False,
 ) -> Any:
-    """Install packages via pip and add 'mim' extra requirements for OneDL Lab
-    packages during pip install process.
+    """Install packages via pip and add 'mminstall' extra requirements for
+    OneDL Lab packages during pip install process.
 
     Args:
         install_args (list): List of arguments passed to `pip install`.
         index_url (str, optional): The pypi index url.
-        is_yes (bool, optional): Deprecated, will have no effect. Reserved for
-            interface compatibility only.
+
+    Returns:
+        int: Exit code from pip install.
     """
+    # Modify install args to add [mminstall] extras for OneDL packages
+    modified_args = add_mminstall_extras(install_args)
 
-    # Get mmcv_base_url from environment variable if exists.
-    mmcv_base_url = os.environ.get('MMCV_BASE_URL', None)
-    if mmcv_base_url is not None:
-        echo_warning('Using the mmcv find base URL from environment variable '
-                     f'`MMCV_BASE_URL`: {mmcv_base_url}')
-    else:
-        mmcv_base_url = DEFAULT_MMCV_BASE_URL
+    # Add mmcv find-links
+    modified_args = add_mmcv_find_links(modified_args)
 
-    # Check if `mmcv_base_url` match the pattern: <scheme>://<netloc>
-    parse_result = urlparse(mmcv_base_url)
-    assert parse_result.scheme, 'Missing URL scheme (http / https). A valid ' \
-        f'`MMCV_BASE_URL` example: {DEFAULT_MMCV_BASE_URL}'
-
-    # Mark mmcv find host as trusted if URL scheme is http.
-    if parse_result.scheme == 'http':
-        install_args += ['--trusted-host', parse_result.netloc]
-
-    # Add onedl-mmcv find links by default.
-    install_args += ['-f', get_mmcv_full_find_link(mmcv_base_url)]
-
-    index_url_opt_names = ['-i', '--index-url', '--pypi-url']
-    if any([opt_name in install_args for opt_name in index_url_opt_names]):
-        echo_warning(
-            'The index url should be passed in via the index_url parameter, '
-            'not specified in install_args via -i/--index-url/--pypi-url.')
+    # Add index URL if provided
     if index_url is not None:
-        install_args += ['-i', index_url]
+        modified_args += ['-i', index_url]
 
-    modified_install_args = modify_install_args(install_args)
-
-    install_args = modified_install_args
-
-    patch_mm_distribution = patch_importlib_distribution
-    with patch_mm_distribution(index_url):
-        # We can use `create_command` method since pip>=19.3 (2019/10/14).
-        status_code = create_command('install').main(install_args)
+    # Run pip install using subprocess
+    pip_cmd = [sys.executable, '-m', 'pip', 'install'] + modified_args
+    result = call_command(pip_cmd)
 
     check_mim_resources()
-    return status_code
+    return result
+
+
+def add_mminstall_extras(install_args: Sequence[str]) -> List[str]:
+    """Add [mminstall] extras to OneDL Lab packages."""
+    modified_args = []
+
+    for arg in install_args:
+        # Skip option flags
+        if arg.startswith('-'):
+            modified_args.append(arg)
+            continue
+
+        # Check if this is an OneDL Lab package
+        package_name = arg.split('[')[0].split('=')[0].split('<')[0].split(
+            '>')[0].split('!')[0].split('~')[0].strip()
+
+        if package_name in PKG2PROJECT and package_name != 'onedl-mmcv':
+            # Add [mminstall] if not already present and no other extras
+            if '[' not in arg:
+                # Simple case: package_name -> package_name[mminstall]
+                rest_of_spec = arg[len(package_name):]
+                modified_arg = f'{package_name}[mminstall]{rest_of_spec}'
+                modified_args.append(modified_arg)
+            elif 'mminstall' not in arg:
+                # Has extras but not mminstall:
+                # package[extra] -> package[extra,mminstall]
+                bracket_pos = arg.find('[')
+                close_bracket_pos = arg.find(']')
+                if bracket_pos != -1 and close_bracket_pos != -1:
+                    before_bracket = arg[:bracket_pos]
+                    extras = arg[bracket_pos + 1:close_bracket_pos]
+                    after_bracket = arg[close_bracket_pos + 1:]
+                    modified_arg = \
+                        f'{before_bracket}[{extras},mminstall]{after_bracket}'
+                    modified_args.append(modified_arg)
+                else:
+                    modified_args.append(arg)
+            else:
+                # Already has mminstall
+                modified_args.append(arg)
+        else:
+            modified_args.append(arg)
+
+    return modified_args
+
+
+def add_mmcv_find_links(install_args: List[str]) -> List[str]:
+    """Add mmcv find-links to install arguments."""
+    # Get mmcv_base_url from environment variable if exists
+    mmcv_base_url = os.environ.get('MMCV_BASE_URL', DEFAULT_MMCV_BASE_URL)
+
+    if mmcv_base_url != DEFAULT_MMCV_BASE_URL:
+        echo_warning('Using the mmcv find base URL from environment variable '
+                     f'`MMCV_BASE_URL`: {mmcv_base_url}')
+
+    # Check URL format
+    parse_result = urlparse(mmcv_base_url)
+    if not parse_result.scheme:
+        echo_warning(f'Invalid MMCV_BASE_URL: {mmcv_base_url}. Using default.')
+        mmcv_base_url = DEFAULT_MMCV_BASE_URL
+        parse_result = urlparse(mmcv_base_url)
+
+    modified_args = install_args.copy()
+
+    # Mark mmcv find host as trusted if URL scheme is http
+    if parse_result.scheme == 'http':
+        modified_args += ['--trusted-host', parse_result.netloc]
+
+    # Add onedl-mmcv find links
+    find_link = get_mmcv_full_find_link(mmcv_base_url)
+    modified_args += ['-f', find_link]
+
+    return modified_args
 
 
 def get_mmcv_full_find_link(mmcv_base_url: str) -> str:
-    """Get the onedl-mmcv find link corresponding to the current environment.
-
-    Args:
-        mmcv_base_url (str): The base URL of mmcv find link.
-
-    Returns:
-        str: The mmcv find links corresponding to the current torch version and
-        CUDA/NPU version.
-    """
+    """Get the onedl-mmcv find link corresponding to the current
+    environment."""
     torch_v, device, device_v = get_torch_device_version()
     major, minor, *_ = torch_v.split('.')
     torch_v = '.'.join([major, minor, '0'])
@@ -207,183 +191,55 @@ def get_mmcv_full_find_link(mmcv_base_url: str) -> str:
     return find_link
 
 
-@contextmanager
-def patch_importlib_distribution(index_url: Optional[str] = None) -> Generator:
-    """A patch for `pip._internal.metadata.importlib.Distribution`.
-
-    Since the old version of the OneDL Lab packages did not add the 'mim' extra
-    requirements to the release distribution, we need to hack the Distribution
-    and manually fetch the 'mim' requirements from `mminstall.txt`.
-
-    This patch works with 'pip>=22.1,python>=3.11'.
-
-    Args:
-        index_url (str, optional): The pypi index url that pass to
-            `get_mminstall_from_pypi`.
-    """
-    from pip._internal.metadata.importlib import Distribution
-
-    origin_iter_dependencies = Distribution.iter_dependencies
-
-    def patched_iter_dependencies(self, extras=()):
-        deps = list(origin_iter_dependencies(self, extras))
-        if self.canonical_name not in PKG2PROJECT or self.canonical_name == 'onedl-mmcv':  # noqa: E501
-            return deps
-
-        if 'mim' in self.iter_provided_extras():
-            mim_extra_requires = list(
-                origin_iter_dependencies(self, ('mim', )))
-            filter_invalid_marker(mim_extra_requires)
-            deps += mim_extra_requires
-        elif 'mminstall' in self.iter_provided_extras():
-            mminstall_extra_requires = list(
-                origin_iter_dependencies(self, ('mminstall', )))
-            filter_invalid_marker(mminstall_extra_requires)
-            deps += mminstall_extra_requires
-        else:
-            # For modern packages, we should install with [mminstall] extra
-            # rather than trying to fetch mminstall.txt
-            echo_warning(
-                f'Package {self.canonical_name} should be installed with '
-                f'[mminstall] extra dependency group. '
-                f'Try: pip install {self.canonical_name}[mminstall]')
-            # Return empty deps since we can't fetch mminstall.txt reliably
-            # The user should reinstall with the proper [mminstall] extra
-        return deps
-
-    Distribution.iter_dependencies = patched_iter_dependencies  # type: ignore
-    try:
-        yield
-    finally:
-        Distribution.iter_dependencies = origin_iter_dependencies  # type: ignore  # noqa: E501
-
-
-def filter_invalid_marker(extra_requires: List) -> None:
-    """Filter out invalid marker in requirements parsed from METADATA.
-
-    More detail can be found at: https://github.com/pypa/pip/issues/11191
-
-    Args:
-        extra_requires (list): A list of Requirement parsed from distribution
-            METADATA.
-    """
-    for req in extra_requires:
-        if req.marker is None:
-            continue
-        try:
-            req.marker.evaluate()
-        except:  # noqa: E722
-            req.marker = None
-
-
-def get_mmdeps_from_mmpkg(mmpkg_name: str,
-                          mmpkg_version: str,
-                          index_url: Optional[str] = None) -> str:
-    """Get 'mim' extra requirements for a given OneDL Lab package from
-    `mminstall.txt`.
-
-    If there is a cached `mminstall.txt`, use the cache, otherwise download the
-    source distribution package from pypi and extract `mminstall.txt` content.
-
-    Args:
-        mmpkg_name (str): The OneDL Lab package name.
-        mmpkg_version (str): The OneDL Lab package version.
-        index_url (str, optional): The pypi index url that pass to
-            `get_mminstall_from_pypi`.
-
-    Returns:
-        str: The text content read from `mminstall.txt`, returns an empty
-        string if anything goes wrong.
-    """
-    mmpkg = f'{mmpkg_name}=={mmpkg_version}'
-    cache_mminstall_dir = os.path.join(DEFAULT_CACHE_DIR, 'mminstall')
-    if not os.path.exists(cache_mminstall_dir):
-        os.mkdir(cache_mminstall_dir)
-    cache_mminstall_fpath = os.path.join(cache_mminstall_dir, f'{mmpkg}.txt')
-    if os.path.exists(cache_mminstall_fpath):
-        # use cached `mminstall.txt`
-        with open(cache_mminstall_fpath) as f:
-            mminstall_content = f.read()
-        echo_warning(
-            f'Using cached `mminstall.txt` for {mmpkg}: {cache_mminstall_fpath}'  # noqa: E501
-        )
-    else:
-        # fetch `mminstall.txt` content from pypi
-        mminstall_content = get_mminstall_from_pypi(mmpkg, index_url=index_url)
-        with open(cache_mminstall_fpath, 'w') as f:
-            f.write(mminstall_content)
-    return mminstall_content
-
-
-@typing.no_type_check
-def get_mminstall_from_pypi(mmpkg: str,
-                            index_url: Optional[str] = None) -> str:
-    """Get the `mminstall.txt` content for a given OneDL Lab package from PyPi.
-
-    Args:
-        mmpkg (str): The OneDL Lab package name, optionally with a version
-            specifier. e.g. 'mmdet', 'mmdet==2.25.0'.
-        index_url (str, optional): The pypi index url, if given, will be used
-            in `pip download`.
-
-    Returns:
-        str: The text content read from `mminstall.txt`, returns an empty
-        string if anything goes wrong.
-    """
-    with tempfile.TemporaryDirectory() as temp_dir:
-        download_args = [
-            mmpkg, '-d', temp_dir, '--no-deps', '--no-binary', ':all:'
-        ]
-        if index_url is not None:
-            download_args += ['-i', index_url]
-        status_code = create_command('download').main(download_args)
-        if status_code != 0:
-            echo_warning(f'pip download failed with args: {download_args}')
-            exit(status_code)
-        mmpkg_tar_fpath = os.path.join(temp_dir, os.listdir(temp_dir)[0])
-        with tarfile.open(mmpkg_tar_fpath) as tarf:
-            mmdeps_fpath = tarf.members[0].name + '/requirements/mminstall.txt'
-            mmdeps_member = tarf._getmember(name=mmdeps_fpath)
-            if mmdeps_member is None:
-                echo_warning(f'{mmdeps_fpath} not found in {mmpkg_tar_fpath}')
-                return ''
-            tarf.fileobj.seek(mmdeps_member.offset_data)
-            mmdeps_content = tarf.fileobj.read(mmdeps_member.size).decode()
-    return mmdeps_content
-
-
 def check_mim_resources() -> None:
     """Check if the mim resource directory exists."""
     for dist in importlib_metadata.distributions():
-        pkg_name = dist.metadata['Name']
-        normalized_pkg_name = pkg_name.lower().replace('_', '-')
-        
-        if normalized_pkg_name not in PKG2PROJECT or normalized_pkg_name == 'onedl-mmcv':
+        try:
+            pkg_name = dist.name
+            if pkg_name is None:
+                continue
+        except (OSError, AttributeError):
+            # Skip corrupted distributions
             continue
 
-        # Try multiple approaches to find the installed package location
+        normalized_pkg_name = pkg_name.lower().replace('_', '-')
+
+        if (normalized_pkg_name not in PKG2PROJECT
+                or normalized_pkg_name == 'onedl-mmcv'):
+            continue
+
+        # Find the installed package location
         installed_path = None
-        
+
         try:
             # Method 1: Use top_level.txt
             top_level = dist.read_text('top_level.txt')
             if top_level:
                 module_name = top_level.split('\n')[0].strip()
-                potential_path = os.path.join(str(dist.locate_file('.')), module_name)
+                potential_path = os.path.join(
+                    str(dist.locate_file('.')), module_name)
                 if os.path.exists(potential_path):
                     installed_path = potential_path
-        except (FileNotFoundError, AttributeError):
+        except (FileNotFoundError, AttributeError, OSError):
             pass
-        
+
         if not installed_path:
-            # Method 2: Try the package name as module name
-            potential_path = os.path.join(str(dist.locate_file('.')), pkg_name.replace('-', '_'))
-            if os.path.exists(potential_path):
-                installed_path = potential_path
-        
+            try:
+                # Method 2: Try the package name as module name
+                potential_path = os.path.join(
+                    str(dist.locate_file('.')), pkg_name.replace('-', '_'))
+                if os.path.exists(potential_path):
+                    installed_path = potential_path
+            except (OSError, AttributeError):
+                pass
+
         if not installed_path:
-            # Method 3: Use the distribution location directly
-            installed_path = str(dist.locate_file('.'))
+            try:
+                # Method 3: Use the distribution location directly
+                installed_path = str(dist.locate_file('.'))
+            except (OSError, AttributeError):
+                echo_warning(f'Cannot locate files for {pkg_name}, skipping')
+                continue
 
         mim_resources_path = os.path.join(installed_path, '.mim')
         if not os.path.exists(mim_resources_path):

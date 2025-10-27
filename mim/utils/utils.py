@@ -492,6 +492,10 @@ def exit_with_error(msg: Union[str, Exception]) -> None:
 def call_command(cmd: list) -> None:
     try:
         subprocess.check_call(cmd)
+        return 0
+    except subprocess.CalledProcessError as e:
+        highlighted_error(e)
+        return e.returncode
     except Exception as e:
         raise highlighted_error(e)  # type: ignore
 
