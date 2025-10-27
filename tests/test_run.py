@@ -10,9 +10,11 @@ from mim.commands.uninstall import cli as uninstall
 
 def setup_module():
     runner = CliRunner()
+    result = runner.invoke(uninstall, ['onedl-mmpretrain', '--yes'])
+    assert result.exit_code == 0, result.output
     result = runner.invoke(uninstall, ['onedl-mmcv', '--yes'])
     assert result.exit_code == 0, result.output
-    result = runner.invoke(uninstall, ['onedl-mmpretrain', '--yes'])
+    result = runner.invoke(uninstall, ['onedl-mmengine', '--yes'])
     assert result.exit_code == 0, result.output
 
 
@@ -26,11 +28,11 @@ def setup_module():
 ])
 def test_run(device, gpus, tmp_path):
     runner = CliRunner()
-    result = runner.invoke(install, ['onedl-mmpretrain>=1.0.0rc0', '--yes'])
-    assert result.exit_code == 0, result.output
     result = runner.invoke(install, ['onedl-mmengine', '--yes'])
     assert result.exit_code == 0, result.output
     result = runner.invoke(install, ['onedl-mmcv>=2.0.0rc0', '--yes'])
+    assert result.exit_code == 0, result.output
+    result = runner.invoke(install, ['onedl-mmpretrain>=1.0.0rc0', '--yes'])
     assert result.exit_code == 0, result.output
 
     result = runner.invoke(run, [
@@ -52,7 +54,9 @@ def test_run(device, gpus, tmp_path):
 
 def teardown_module():
     runner = CliRunner()
+    result = runner.invoke(uninstall, ['onedl-mmpretrain', '--yes'])
+    assert result.exit_code == 0, result.output
     result = runner.invoke(uninstall, ['onedl-mmcv', '--yes'])
     assert result.exit_code == 0, result.output
-    result = runner.invoke(uninstall, ['onedl-mmpretrain', '--yes'])
+    result = runner.invoke(uninstall, ['onedl-mmengine', '--yes'])
     assert result.exit_code == 0, result.output

@@ -353,31 +353,37 @@ def get_mminstall_from_pypi(mmpkg: str,
 
 
 def check_mim_resources() -> None:
-    """Check if the mim resource directory exists.
-
-    Newer versions of the OneDL Lab packages have packaged the mim resource
-    files into the distribution package, while earlier versions do not.
-
-    If the mim resources file (aka `.mim`) do not exists, log a warning that a
-    new version needs to be installed.
-    """
+    """Check if the mim resource directory exists."""
     for dist in importlib_metadata.distributions():
         pkg_name = dist.metadata['Name']
-        if pkg_name not in PKG2PROJECT or pkg_name == 'onedl-mmcv':
+        normalized_pkg_name = pkg_name.lower().replace('_', '-')
+        
+        if normalized_pkg_name not in PKG2PROJECT or normalized_pkg_name == 'onedl-mmcv':
             continue
 
+        # Try multiple approaches to find the installed package location
+        installed_path = None
+        
         try:
-            # Try to get top-level packages
+            # Method 1: Use top_level.txt
             top_level = dist.read_text('top_level.txt')
             if top_level:
                 module_name = top_level.split('\n')[0].strip()
-                installed_path = os.path.join(
-                    str(dist.locate_file('.')), module_name)
-            else:
-                installed_path = os.path.join(
-                    str(dist.locate_file('.')), pkg_name)
-        except FileNotFoundError:
-            installed_path = os.path.join(str(dist.locate_file('.')), pkg_name)
+                potential_path = os.path.join(str(dist.locate_file('.')), module_name)
+                if os.path.exists(potential_path):
+                    installed_path = potential_path
+        except (FileNotFoundError, AttributeError):
+            pass
+        
+        if not installed_path:
+            # Method 2: Try the package name as module name
+            potential_path = os.path.join(str(dist.locate_file('.')), pkg_name.replace('-', '_'))
+            if os.path.exists(potential_path):
+                installed_path = potential_path
+        
+        if not installed_path:
+            # Method 3: Use the distribution location directly
+            installed_path = str(dist.locate_file('.'))
 
         mim_resources_path = os.path.join(installed_path, '.mim')
         if not os.path.exists(mim_resources_path):
