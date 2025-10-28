@@ -4,7 +4,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "onedl-mim"
-version="0.4.1rc0"
+version="0.5.0"
 description = "MIM Installs OneDL lab packages"
 readme = "README.md"
 license = {text = "Apache-2.0"}
