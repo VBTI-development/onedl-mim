@@ -1,3 +1,4 @@
+# Copyright (c) 22-10-2025 VBTI Products BV.
 # Copyright (c) OpenMMLab. All rights reserved.
 
 # NOTE: We could got AssertionError when importing pip before
@@ -10,7 +11,8 @@ try:
     import setuptools  # noqa: F401
     import warnings
     warnings.filterwarnings('ignore', 'Setuptools is replacing distutils')
-except ImportError:
+except (ImportError, AttributeError):
+    # python 3.12 introduces AttributeError.
     pass
 
 from .commands import (

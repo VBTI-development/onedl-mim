@@ -11,11 +11,11 @@ from mim.commands.uninstall import cli as uninstall
 
 def setup_module():
     runner = CliRunner()
+    result = runner.invoke(uninstall, ['onedl-mmpretrain', '--yes'])
+    assert result.exit_code == 0, result.output
     result = runner.invoke(uninstall, ['onedl-mmcv', '--yes'])
     assert result.exit_code == 0, result.output
-    result = runner.invoke(uninstall, ['onedl-onedl-mmengine', '--yes'])
-    assert result.exit_code == 0, result.output
-    result = runner.invoke(uninstall, ['onedl-mmpretrain', '--yes'])
+    result = runner.invoke(uninstall, ['onedl-mmengine', '--yes'])
     assert result.exit_code == 0, result.output
 
 

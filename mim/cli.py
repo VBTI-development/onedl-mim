@@ -3,11 +3,11 @@ import difflib
 import os
 import os.path as osp
 from configparser import ConfigParser
+from importlib.metadata import version
 
 import click
 
-from mim.version import __version__
-
+__version__ = version('onedl-mim')
 plugin_folder = os.path.join(os.path.dirname(__file__), 'commands')
 CONTEXT_SETTINGS = dict(help_option_names=['-h', '--help'])
 

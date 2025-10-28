@@ -17,6 +17,8 @@ def setup_module():
     assert result.exit_code == 0, result.output
 
 
+@pytest.mark.xfail(reason='Conflict with numpy and pandas.'
+                   'Should be resolved when all children support numpy>2')
 def test_download(tmp_path):
     runner = CliRunner()
     result = runner.invoke(install, ['onedl-mmcv', '--yes'])

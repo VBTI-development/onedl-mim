@@ -1,24 +1,21 @@
 # Copyright (c) OpenMMLab. All rights reserved.
 import functools
 import hashlib
-import importlib
 import json
 import os
 import os.path as osp
-import pkg_resources
 import re
 import subprocess
 import tarfile
 import typing
 from collections import defaultdict
-from email.parser import FeedParser
-from importlib.metadata import Distribution
-from pkg_resources import get_distribution, parse_version
+from importlib import metadata as importlib_metadata
 from typing import Any, List, Optional, Sequence, Tuple, Union
 from urllib.parse import unquote, urlparse
 
 import click
 import requests
+from packaging import version as packaging_version
 from pip._vendor.packaging import version
 from requests.exceptions import InvalidURL, RequestException, Timeout
 from requests.models import Response
@@ -66,13 +63,10 @@ def is_installed(package: str) -> bool:
     Args:
         package (str): Name of package to be checked.
     """
-    # refresh the pkg_resources
-    # more datails at https://github.com/pypa/setuptools/issues/373
-    importlib.reload(pkg_resources)
     try:
-        get_distribution(package)
+        importlib_metadata.distribution(package)
         return True
-    except pkg_resources.DistributionNotFound:
+    except importlib_metadata.PackageNotFoundError:
         return False
 
 
@@ -100,22 +94,18 @@ def parse_home_page(package: str) -> Optional[str]:
     Args:
         package (str): Package to parse home page.
     """
-    home_page = None
-    pkg = get_distribution(package)
-    if pkg.has_metadata('METADATA'):
-        metadata = pkg.get_metadata('METADATA')
-        feed_parser = FeedParser()
-        feed_parser.feed(metadata)
-        parsed = feed_parser.close()
-
-        urls = parsed.get_all('project-url')
-        home_page = ''
-        for project_url in urls:
-            label, url_ = project_url.split(',', 1)
-            if label.lower() == 'repository':
-                home_page = url_.strip().lower()
-                break
-    return home_page
+    try:
+        dist = importlib_metadata.distribution(package)
+        # Get project URLs from metadata
+        project_urls = dist.metadata.get_all('Project-URL')
+        if project_urls:
+            for project_url in project_urls:
+                label, url_ = project_url.split(',', 1)
+                if label.strip().lower() == 'repository':
+                    return url_.strip().lower()
+    except importlib_metadata.PackageNotFoundError:
+        pass
+    return None
 
 
 def get_github_url(package: str) -> str:
@@ -261,7 +251,7 @@ def get_installed_version(package: str) -> str:
     Args:
         package (str): Name of package.
     """
-    return get_distribution(package).version
+    return importlib_metadata.version(package)
 
 
 def get_package_info_from_pypi(package: str, timeout: int = 15) -> dict:
@@ -287,7 +277,7 @@ def get_release_version(package: str, timeout: int = 15) -> List[str]:
     """
     pkg_info = get_package_info_from_pypi(package, timeout)
     releases = pkg_info['releases']
-    return sorted(releases, key=parse_version)
+    return sorted(releases, key=packaging_version.parse)
 
 
 def get_latest_version(package: str, timeout: int = 15) -> str:
@@ -316,13 +306,17 @@ def package2module(package: str):
     Args:
         package (str): Package to infer module name.
     """
-    pkg = get_distribution(package)
-    if pkg.has_metadata('top_level.txt'):
-        module_name = pkg.get_metadata('top_level.txt').split('\n')[0]
-        return module_name
-    else:
-        raise ValueError(
-            highlighted_error(f'can not infer the module name of {package}'))
+    try:
+        dist = importlib_metadata.distribution(package)
+        # Try to get top-level packages
+        top_level = dist.read_text('top_level.txt')
+        if top_level:
+            return top_level.split('\n')[0].strip()
+    except (importlib_metadata.PackageNotFoundError, FileNotFoundError):
+        pass
+
+    raise ValueError(
+        highlighted_error(f'can not infer the module name of {package}'))
 
 
 @ensure_installation
@@ -334,31 +328,37 @@ def get_installed_path(package: str) -> str:
 
     Example:
         >>> get_installed_path('onedl-mmpretrain')
-        >>> '.../lib/python3.7/site-packages/onedl-mmpretrain'
+        >>> '.../lib/python3.10/site-packages/onedl-mmpretrain'
     """
-    # if the package name is not the same as module name, module name should be
-    # inferred. For example, onedl-mmcv is the package name, but mmcv is module
-    # name. If we want to get the installed path of onedl-mmcv, we should
-    # concat the pkg.location and module name
-    possible_path = ''
-    direct_url = Distribution.from_name(package).read_text('direct_url.json')
+    dist = importlib_metadata.distribution(package)
 
-    if direct_url:
-        direct_url_dict: dict = json.loads(str(direct_url))
-        pkg_is_editable = direct_url_dict.get('dir_info',
-                                              {}).get('editable', False)
+    # Try to read direct_url.json for editable installs
+    try:
+        direct_url_text = dist.read_text('direct_url.json')
+        if direct_url_text:
+            direct_url_dict: dict = json.loads(direct_url_text)
+            pkg_is_editable = direct_url_dict.get('dir_info',
+                                                  {}).get('editable', False)
 
-        if pkg_is_editable:
-            possible_path = direct_url_dict.get('url', '')
-            possible_path = osp.normpath(unquote(urlparse(possible_path).path))
+            if pkg_is_editable:
+                possible_path = direct_url_dict.get('url', '')
+                return osp.normpath(unquote(urlparse(possible_path).path))
+    except FileNotFoundError:
+        pass
 
-    if not possible_path:
-        pkg = get_distribution(package)
-        possible_path = osp.join(pkg.location, package)  # type: ignore
+    # Get the location from files
+    if dist.files:
+        # Get the first file's parent directory
+        first_file = str(dist.files[0])
+        possible_path = osp.join(
+            dist.locate_file('.'),
+            first_file.split('/')[0])
+    else:
+        # Fallback: construct path
+        site_packages = str(dist.locate_file('.'))
+        possible_path = osp.join(site_packages, package)
         if not osp.exists(possible_path):
-            possible_path = osp.join(
-                pkg.location,  # type: ignore
-                package2module(package))
+            possible_path = osp.join(site_packages, package2module(package))
 
     return possible_path
 
@@ -492,6 +492,10 @@ def exit_with_error(msg: Union[str, Exception]) -> None:
 def call_command(cmd: list) -> None:
     try:
         subprocess.check_call(cmd)
+        return 0
+    except subprocess.CalledProcessError as e:
+        highlighted_error(e)
+        return e.returncode
     except Exception as e:
         raise highlighted_error(e)  # type: ignore
 
