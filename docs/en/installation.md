@@ -22,7 +22,7 @@
 - from pypi
 
   ```bash
-  pip install openmim
+  pip install onedl-mim
   ```
 
 - from source
