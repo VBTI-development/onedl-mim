@@ -342,11 +342,16 @@ def get_installed_path(package: str) -> str:
 
             if pkg_is_editable:
                 possible_path = direct_url_dict.get('url', '')
-                path = unquote(urlparse(possible_path).path)
+                parsed_url = urlparse(possible_path)
+                path = unquote(parsed_url.path)
+                if parsed_url.netloc:
+                    path = f'//{parsed_url.netloc}{path}'
                 # On Windows, urlparse leaves a leading '/' before the drive
-                # letter (e.g. '/D:/...') which normpath turns into '\D:\...'
-                # — an invalid path.  Strip it so we get 'D:\...' instead.
-                if os.name == 'nt' and path.startswith('/'):
+                # letter for local file URIs (e.g. '/D:/...'), which normpath
+                # turns into '\D:\...' — an invalid path. Only strip that
+                # leading slash for drive-letter paths so UNC paths like
+                # '//server/share/...' are preserved.
+                if os.name == 'nt' and re.match(r'^/[A-Za-z]:', path):
                     path = path[1:]
                 path = osp.normpath(path)
                 # pip may lowercase the path when writing direct_url.json via
