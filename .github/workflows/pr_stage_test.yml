@@ -112,7 +112,7 @@ jobs:
           activate-environment: true
           python-version: ${{ matrix.python-version }}
       - name: Install torch
-        run: uv pip install --torch-backend=cpu torch==2.3.1 torchvision
+        run: uv pip install --torch-backend=cpu torch==2.4.1 torchvision
       - name: Build and install
         run: uv pip install -e .
       - name: Validate the installation
