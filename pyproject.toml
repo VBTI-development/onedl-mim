@@ -55,7 +55,7 @@ tests = [
 ]
 
 [project.optional-dependencies]
-torch = [ "torch", "torchvision" ]
+torch = [ "torch>=2.4.1", "torchvision" ]
 
 [project.urls]
 Homepage = "https://github.com/vbti-development/onedl-mim"

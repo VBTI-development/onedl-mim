@@ -1017,7 +1017,7 @@ requires-dist = [
     { name = "rich" },
     { name = "setuptools", specifier = ">=80.0" },
     { name = "tabulate" },
-    { name = "torch", marker = "extra == 'torch'" },
+    { name = "torch", marker = "extra == 'torch'", specifier = ">=2.4.1" },
     { name = "torchvision", marker = "extra == 'torch'" },
 ]
 provides-extras = ["torch"]
