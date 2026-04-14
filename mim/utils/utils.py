@@ -342,7 +342,20 @@ def get_installed_path(package: str) -> str:
 
             if pkg_is_editable:
                 possible_path = direct_url_dict.get('url', '')
-                return osp.normpath(unquote(urlparse(possible_path).path))
+                path = unquote(urlparse(possible_path).path)
+                # On Windows, urlparse leaves a leading '/' before the drive
+                # letter (e.g. '/D:/...') which normpath turns into '\D:\...'
+                # — an invalid path.  Strip it so we get 'D:\...' instead.
+                if os.name == 'nt' and path.startswith('/'):
+                    path = path[1:]
+                path = osp.normpath(path)
+                # pip may lowercase the path when writing direct_url.json via
+                # pathlib.Path.as_uri().  os.path.realpath() calls
+                # GetFinalPathNameByHandle on Windows (Python >= 3.8) which
+                # returns the canonical on-disk casing.
+                if osp.exists(path):
+                    path = osp.realpath(path)
+                return path
     except FileNotFoundError:
         pass
 
